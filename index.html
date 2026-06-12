@@ -7,32 +7,35 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f4f9; color: #1a1a1a; min-height: 100vh; }
-  .container { max-width: 780px; margin: 0 auto; padding: 2rem 1rem; }
-  h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
-  .sub { font-size: 13px; color: #666; margin-bottom: 1rem; }
-  .sources { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 1.25rem; }
-  .src { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 20px; background: #fff; color: #555; border: 1px solid #ddd; }
+  .banner { background: #002776; padding: 2rem 1rem; margin-bottom: 2rem; }
+  .banner-inner { max-width: 780px; margin: 0 auto; }
+  .banner h1 { color: #fff; font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+  .banner p { color: #a8c4e8; font-size: 15px; }
+  .container { max-width: 780px; margin: 0 auto; padding: 0 1rem 3rem; }
   textarea { width: 100%; min-height: 130px; font-size: 14px; padding: 12px; border-radius: 8px; border: 1px solid #ddd; resize: vertical; font-family: inherit; line-height: 1.6; background: #fff; }
-  textarea:focus { outline: none; border-color: #999; }
+  textarea:focus { outline: none; border-color: #002776; }
   .btns { display: flex; gap: 8px; margin-top: 10px; }
   button { padding: 9px 20px; font-size: 14px; font-weight: 500; cursor: pointer; border-radius: 8px; border: 1px solid #ccc; background: #fff; color: #1a1a1a; transition: background 0.15s; }
   button:hover { background: #f0f0f0; }
-  button.primary { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
-  button.primary:hover { background: #333; }
+  button.primary { background: #002776; color: #fff; border-color: #002776; }
+  button.primary:hover { background: #001a5c; }
   .card { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 1.25rem; margin-top: 1.5rem; }
   .sec { margin-bottom: 1.25rem; }
   .sec:last-child { margin-bottom: 0; }
   .st { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
   .hr { border: none; border-top: 1px solid #f0f0f0; margin: 1rem 0; }
-  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .metric { background: #f9f9f7; border-radius: 8px; padding: 10px 12px; }
+  .top-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; align-items: center; }
+  .metric { background: #f9f9f7; border-radius: 8px; padding: 10px 12px; text-align: center; }
   .ml { font-size: 11px; color: #888; margin-bottom: 3px; }
   .mv { font-size: 22px; font-weight: 600; }
   .ms { font-size: 11px; color: #aaa; margin-top: 1px; }
+  .grade { font-size: 48px; font-weight: 700; line-height: 1; }
+  .grade-label { font-size: 11px; color: #888; margin-top: 4px; }
+  .gauge-wrap { display: flex; flex-direction: column; align-items: center; }
   .seg-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
   .seg-lbl { font-size: 12px; color: #666; width: 160px; flex-shrink: 0; }
   .bar-bg { flex: 1; height: 5px; background: #eee; border-radius: 3px; overflow: hidden; }
-  .bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+  .bar-fill { height: 100%; border-radius: 3px; }
   .seg-pct { font-size: 12px; color: #888; width: 32px; text-align: right; }
   .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; flex-shrink: 0; }
   .tag-red { background: #fef2f2; color: #991b1b; }
@@ -41,6 +44,12 @@
   .begrep-info { flex: 1; }
   .begrep-forklaring { font-size: 13px; color: #1a1a1a; line-height: 1.5; }
   .begrep-kilde { font-size: 11px; color: #888; margin-top: 2px; }
+  .highlighted-text { font-size: 14px; line-height: 1.8; background: #f9f9f7; padding: 14px; border-radius: 8px; }
+  .word-critical { background: #fef2f2; color: #991b1b; border-radius: 3px; padding: 1px 3px; font-weight: 600; cursor: help; }
+  .word-moderate { background: #fffbeb; color: #92400e; border-radius: 3px; padding: 1px 3px; font-weight: 600; cursor: help; }
+  .legend { display: flex; gap: 16px; margin-top: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #666; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
   .ob { background: #f9f9f7; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
   .ob-title { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; }
   .ob-title .hl { background: #fef2f2; color: #991b1b; padding: 1px 5px; border-radius: 4px; }
@@ -58,29 +67,39 @@
   ul.li { padding-left: 16px; }
   ul.li li { font-size: 13px; line-height: 1.6; margin-bottom: 4px; color: #1a1a1a; }
   .tip { font-size: 13px; padding: 8px 10px; background: #f9f9f7; margin-bottom: 6px; border-left: 2px solid #ccc; line-height: 1.5; }
-  .improved { font-size: 13px; line-height: 1.7; background: #f9f9f7; padding: 12px; border-radius: 8px; white-space: pre-wrap; color: #1a1a1a; }
+  .improved-wrap { position: relative; margin-top: 8px; }
+  .improved { font-size: 13px; line-height: 1.7; background: #f9f9f7; padding: 12px; padding-right: 48px; border-radius: 8px; white-space: pre-wrap; color: #1a1a1a; }
+  .copy-btn { position: absolute; top: 8px; right: 8px; padding: 5px 10px; font-size: 11px; font-weight: 600; cursor: pointer; border-radius: 6px; border: 1px solid #ddd; background: #fff; color: #555; }
+  .copy-btn:hover { background: #f0f0f0; }
+  .copy-btn.copied { background: #f0fdf4; color: #166534; border-color: #166534; }
   .summary { font-size: 14px; line-height: 1.7; color: #1a1a1a; }
   .loading { display: flex; align-items: center; gap: 8px; color: #888; font-size: 14px; padding: 1.25rem 0; }
-  .spinner { width: 16px; height: 16px; border: 2px solid #ddd; border-top-color: #888; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
+  .spinner { width: 16px; height: 16px; border: 2px solid #ddd; border-top-color: #002776; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .error { color: #991b1b; font-size: 14px; padding: 1rem 0; }
+  .sources-box { margin-top: 2rem; padding: 1.25rem; background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; }
+  .sources-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  .source-item { padding: 10px 12px; background: #f9f9f7; border-radius: 8px; border-left: 3px solid #002776; }
+  .source-title { font-size: 12px; font-weight: 600; color: #1a1a1a; margin-bottom: 3px; }
+  .source-desc { font-size: 12px; color: #555; line-height: 1.5; }
   @media (max-width: 600px) {
-    .metrics { grid-template-columns: 1fr 1fr; }
+    .top-metrics { grid-template-columns: 1fr 1fr; }
     .two-col { grid-template-columns: 1fr; }
     .seg-lbl { width: 120px; }
+    .sources-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
-<div style="background:#002776;padding:2rem 1rem;margin-bottom:2rem;">
-  <div style="max-width:780px;margin:0 auto;">
-    <h1 style="color:#fff;font-size:26px;font-weight:700;margin-bottom:6px;">Pensjonstekst Analyse</h1>
-    <p style="color:#a8c4e8;font-size:15px;">Finn ut hvor godt kundene vil forstå teksten</p>
+
+<div class="banner">
+  <div class="banner-inner">
+    <h1>Pensjonstekst Analyse</h1>
+    <p>Finn ut hvor godt kundene vil forstå teksten</p>
   </div>
 </div>
 
-<div class="container" style="padding-top:0;">
- 
+<div class="container">
   <textarea id="inp" placeholder="Lim inn pensjonsfaglig tekst her..."></textarea>
   <div class="btns">
     <button class="primary" onclick="analyse()">Analyser tekst</button>
@@ -88,45 +107,21 @@
   </div>
   <div id="out"></div>
 
-  <div style="margin-top:3rem;padding:1.25rem;background:#fff;border:1px solid #e5e5e5;border-radius:12px;">
-    <div style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;">Forskningsgrunnlag</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <div style="padding:10px 12px;background:#f9f9f7;border-radius:8px;border-left:3px solid #1a1a1a;">
-        <div style="font-size:12px;font-weight:600;color:#1a1a1a;margin-bottom:3px;">Fafo 2022:04 – Østhus</div>
-        <div style="font-size:12px;color:#555;line-height:1.5;">41% av arbeidstakere usikre på pensjonstype. Kunnskap skjevfordelt etter alder, inntekt, kjønn og bedriftsstørrelse.</div>
-      </div>
-      <div style="padding:10px 12px;background:#f9f9f7;border-radius:8px;border-left:3px solid #1a1a1a;">
-        <div style="font-size:12px;font-weight:600;color:#1a1a1a;margin-bottom:3px;">ISF/Grødem 2019 – PensjonsLAB</div>
-        <div style="font-size:12px;color:#555;line-height:1.5;">Folk vet mer enn de tror, men har lav selvtillit. Institusjonell tillit gjør at folk ikke undersøker videre.</div>
-      </div>
-      <div style="padding:10px 12px;background:#f9f9f7;border-radius:8px;border-left:3px solid #1a1a1a;">
-        <div style="font-size:12px;font-weight:600;color:#1a1a1a;margin-bottom:3px;">Norstat/Norsk Pensjon 2025</div>
-        <div style="font-size:12px;color:#555;line-height:1.5;">Kun 33% har god oversikt over pensjon. Kvinner 27%, menn 40%. Grunnskole 19% god oversikt vs. master 40%.</div>
-      </div>
-      <div style="padding:10px 12px;background:#f9f9f7;border-radius:8px;border-left:3px solid #1a1a1a;">
-        <div style="font-size:12px;font-weight:600;color:#1a1a1a;margin-bottom:3px;">SPK/Statens pensjonskasse 2025</div>
-        <div style="font-size:12px;color:#555;line-height:1.5;">71% synes pensjon er vanskelig. 80% i alderen 50–59 år. 76% kvinner vs. 67% menn.</div>
-      </div>
-      <div style="padding:10px 12px;background:#f9f9f7;border-radius:8px;border-left:3px solid #1a1a1a;">
-        <div style="font-size:12px;font-weight:600;color:#1a1a1a;margin-bottom:3px;">Finans Norge/Norstat 2016</div>
-        <div style="font-size:12px;color:#555;line-height:1.5;">Innskuddsfritak 7%, kapitalforsikring 15%, levealdersjustering 45%, fripolise 26% forståelse i befolkningen.</div>
-      </div>
-      <div style="padding:10px 12px;background:#f9f9f7;border-radius:8px;border-left:3px solid #1a1a1a;">
-        <div style="font-size:12px;font-weight:600;color:#1a1a1a;margin-bottom:3px;">Finans Norge + Språkrådet 2016</div>
-        <div style="font-size:12px;color:#555;line-height:1.5;">Klarspråkprosjektet – bransjestandard for enklere pensjonsspråk i samarbeid med Språkrådet.</div>
-      </div>
-      <div style="padding:10px 12px;background:#f9f9f7;border-radius:8px;border-left:3px solid #1a1a1a;">
-        <div style="font-size:12px;font-weight:600;color:#1a1a1a;margin-bottom:3px;">Nyhus/UiA + Jensen/SIFO 2024</div>
-        <div style="font-size:12px;color:#555;line-height:1.5;">Pensjon er en ulikhetsmaskin. Lav finansiell kunnskap henger direkte sammen med lav pensjonssparing.</div>
-      </div>
-      <div style="padding:10px 12px;background:#f9f9f7;border-radius:8px;border-left:3px solid #1a1a1a;">
-        <div style="font-size:12px;font-weight:600;color:#1a1a1a;margin-bottom:3px;">Finans Norges pensjonsordliste</div>
-        <div style="font-size:12px;color:#555;line-height:1.5;">Over 100 pensjonsbegreper med forklaringer – brukt som grunnlag for begrepsgjenkjenning og ordbytte-forslag.</div>
-      </div>
+  <div class="sources-box">
+    <div class="st">Forskningsgrunnlag</div>
+    <div class="sources-grid">
+      <div class="source-item"><div class="source-title">Fafo 2022:04 – Østhus</div><div class="source-desc">41% av arbeidstakere usikre på pensjonstype. Kunnskap skjevfordelt etter alder, inntekt, kjønn og bedriftsstørrelse.</div></div>
+      <div class="source-item"><div class="source-title">ISF/Grødem 2019 – PensjonsLAB</div><div class="source-desc">Folk vet mer enn de tror, men har lav selvtillit. Institusjonell tillit gjør at folk ikke undersøker videre.</div></div>
+      <div class="source-item"><div class="source-title">Norstat/Norsk Pensjon 2025</div><div class="source-desc">Kun 33% har god oversikt. Kvinner 27%, menn 40%. Grunnskole 19% god oversikt vs. master 40%.</div></div>
+      <div class="source-item"><div class="source-title">SPK/Statens pensjonskasse 2025</div><div class="source-desc">71% synes pensjon er vanskelig. 80% i alderen 50–59 år. 76% kvinner vs. 67% menn.</div></div>
+      <div class="source-item"><div class="source-title">Finans Norge/Norstat 2016</div><div class="source-desc">Innskuddsfritak 7%, kapitalforsikring 15%, levealdersjustering 45%, fripolise 26% forståelse i befolkningen.</div></div>
+      <div class="source-item"><div class="source-title">Finans Norge + Språkrådet 2016</div><div class="source-desc">Klarspråkprosjektet – bransjestandard for enklere pensjonsspråk.</div></div>
+      <div class="source-item"><div class="source-title">Nyhus/UiA + Jensen/SIFO 2024</div><div class="source-desc">Pensjon er en ulikhetsmaskin. Lav finansiell kunnskap henger direkte sammen med lav pensjonssparing.</div></div>
+      <div class="source-item"><div class="source-title">Finans Norges pensjonsordliste</div><div class="source-desc">Over 100 pensjonsbegreper med forklaringer – grunnlag for begrepsgjenkjenning og ordbytte-forslag.</div></div>
     </div>
   </div>
-
 </div>
+
 <script>
 function col(v) {
   if (v >= 65) return '#166534';
@@ -143,6 +138,72 @@ function scol(s) {
   if (s >= 5) return '#d97706';
   return '#dc2626';
 }
+
+function getGrade(fg) {
+  if (fg >= 75) return { grade: 'A', color: '#166534' };
+  if (fg >= 62) return { grade: 'B', color: '#166534' };
+  if (fg >= 50) return { grade: 'C', color: '#92400e' };
+  if (fg >= 38) return { grade: 'D', color: '#92400e' };
+  if (fg >= 25) return { grade: 'E', color: '#991b1b' };
+  return { grade: 'F', color: '#991b1b' };
+}
+
+function drawGauge(canvas, value) {
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+  const cx = w / 2;
+  const cy = h - 10;
+  const r = Math.min(cx, cy) - 10;
+  ctx.clearRect(0, 0, w, h);
+  const segments = [
+    { from: Math.PI, to: Math.PI * 1.25, color: '#dc2626' },
+    { from: Math.PI * 1.25, to: Math.PI * 1.5, color: '#f97316' },
+    { from: Math.PI * 1.5, to: Math.PI * 1.75, color: '#eab308' },
+    { from: Math.PI * 1.75, to: Math.PI * 2, color: '#16a34a' },
+  ];
+  segments.forEach(s => {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, s.from, s.to);
+    ctx.closePath();
+    ctx.fillStyle = s.color;
+    ctx.fill();
+  });
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 0.6, 0, Math.PI * 2);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
+  const angle = Math.PI + (value / 100) * Math.PI;
+  const nx = cx + r * 0.75 * Math.cos(angle);
+  const ny = cy + r * 0.75 * Math.sin(angle);
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(nx, ny);
+  ctx.strokeStyle = '#1a1a1a';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+  ctx.fillStyle = '#1a1a1a';
+  ctx.fill();
+  ctx.fillStyle = col(value);
+  ctx.font = 'bold 18px -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(value + '%', cx, cy - r * 0.25);
+}
+
+function highlightText(text, begreper) {
+  let result = text;
+  const sorted = [...begreper].sort((a, b) => b.begrep.length - a.begrep.length);
+  sorted.forEach(b => {
+    const cls = b.alvorlighet === 'kritisk' ? 'word-critical' : 'word-moderate';
+    const re = new RegExp(`\\b(${b.begrep.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})\\b`, 'gi');
+    result = result.replace(re, `<span class="${cls}" title="${b.forklaring}">$1</span>`);
+  });
+  return result;
+}
+
 async function analyse() {
   const text = document.getElementById('inp').value.trim();
   if (!text) return;
@@ -156,12 +217,13 @@ async function analyse() {
     });
     if (!res.ok) throw new Error('API-feil: ' + res.status);
     const r = await res.json();
-    render(r);
+    render(r, text);
   } catch(e) {
     out.innerHTML = '<p class="error">Noe gikk galt: ' + e.message + '</p>';
   }
 }
-function render(r) {
+
+function render(r, originalText) {
   const seg = r.segmentForstaelse || {};
   const segs = [
     ['Unge under 35', seg.unge_under35],
@@ -172,6 +234,14 @@ function render(r) {
     ['Kvinner', seg.kvinner],
     ['Menn', seg.menn],
   ];
+
+  const { grade, color: gradeColor } = getGrade(r.forstaelsegrad);
+
+  const highlightedHTML = highlightText(
+    originalText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'),
+    r.vanskeligeBegreper || []
+  );
+
   const begriper = (r.vanskeligeBegreper || []).map(b => `
     <div class="begrep-row">
       <span class="tag ${b.alvorlighet === 'kritisk' ? 'tag-red' : 'tag-amber'}">${b.begrep}</span>
@@ -180,6 +250,7 @@ function render(r) {
         ${b.forskningsdata ? `<div class="begrep-kilde">${b.forskningsdata}</div>` : ''}
       </div>
     </div>`).join('');
+
   const ordbytte = (r.ordbytte || []).map(o => {
     const sorted = [...(o.forslag || [])].sort((a, b) => b.score - a.score);
     return `
@@ -196,17 +267,29 @@ function render(r) {
         </div>`).join('')}
     </div>`;
   }).join('');
+
   const tips = (r.klarsprakTips || []).map(t =>
     `<div class="tip"><strong>${t.prinsipp}:</strong> ${t.eksempel}</div>`).join('');
+
   document.getElementById('out').innerHTML = `
     <div class="card">
       <div class="sec"><div class="st">Overordnet vurdering</div><p class="summary">${r.oppsummering}</p></div>
       <div class="hr"></div>
       <div class="sec">
-        <div class="metrics">
-          <div class="metric"><div class="ml">Forståelsesgrad</div><div class="mv" style="color:${col(r.forstaelsegrad)}">${r.forstaelsegrad}%</div><div class="ms">av befolkningen</div></div>
-          <div class="metric"><div class="ml">Lesbarhet</div><div class="mv" style="color:${col(r.lesbarhet)}">${r.lesbarhet}/100</div><div class="ms">høyere = lettere</div></div>
-          <div class="metric"><div class="ml">Kompleksitet</div><div class="mv" style="font-size:15px;padding-top:4px">${r.kompleksitet}</div><div class="ms">&nbsp;</div></div>
+        <div class="top-metrics">
+          <div class="metric gauge-wrap">
+            <div class="ml">Forståelsesgrad</div>
+            <canvas id="gauge" width="140" height="80"></canvas>
+          </div>
+          <div class="metric" style="text-align:center;">
+            <div class="ml">Karakter</div>
+            <div class="grade" style="color:${gradeColor}">${grade}</div>
+            <div class="grade-label">basert på forståelsesgrad</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="metric"><div class="ml">Lesbarhet</div><div class="mv" style="color:${col(r.lesbarhet)}">${r.lesbarhet}/100</div><div class="ms">høyere = lettere</div></div>
+            <div class="metric"><div class="ml">Kompleksitet</div><div class="mv" style="font-size:15px;padding-top:2px">${r.kompleksitet}</div></div>
+          </div>
         </div>
       </div>
       <div class="hr"></div>
@@ -219,6 +302,16 @@ function render(r) {
             <span class="seg-pct">${v}%</span>
           </div>`).join('')}
       </div>
+      <div class="hr"></div>
+      <div class="sec">
+        <div class="st">Fargekodet tekst</div>
+        <div class="highlighted-text">${highlightedHTML}</div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#fef2f2;border:1px solid #991b1b"></div>Kritisk begrep</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#fffbeb;border:1px solid #92400e"></div>Moderat begrep</div>
+          <div class="legend-item" style="font-size:11px;color:#aaa;">Hold musepekeren over et ord for forklaring</div>
+        </div>
+      </div>
       ${begriper ? `<div class="hr"></div><div class="sec"><div class="st">Vanskelige begreper (${(r.vanskeligeBegreper || []).length})</div>${begriper}</div>` : ''}
       ${ordbytte ? `<div class="hr"></div><div class="sec"><div class="st">Ordbytte-forslag</div>${ordbytte}</div>` : ''}
       <div class="hr"></div>
@@ -230,8 +323,27 @@ function render(r) {
       </div>
       ${tips ? `<div class="hr"></div><div class="sec"><div class="st">Klarspråk-tips</div>${tips}</div>` : ''}
       <div class="hr"></div>
-      <div class="sec"><div class="st">Forslag til forbedret tekst</div><div class="improved" style="margin-top:8px">${r.forbedretTekst}</div></div>
+      <div class="sec">
+        <div class="st">Forslag til forbedret tekst</div>
+        <div class="improved-wrap">
+          <div class="improved" id="improvedText">${r.forbedretTekst}</div>
+          <button class="copy-btn" id="copyBtn" onclick="copyText()">Kopier</button>
+        </div>
+      </div>
     </div>`;
+
+  const canvas = document.getElementById('gauge');
+  if (canvas) drawGauge(canvas, r.forstaelsegrad);
+}
+
+function copyText() {
+  const text = document.getElementById('improvedText').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Kopiert!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Kopier'; btn.classList.remove('copied'); }, 2000);
+  });
 }
 </script>
 </body>
