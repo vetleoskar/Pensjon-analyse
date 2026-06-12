@@ -70,6 +70,9 @@ SVAR MED DETTE JSON-FORMATET:
   });
 
   const data = await response.json();
-  const result = JSON.parse(data.content[0].text.replace(/```json|```/g, '').trim());
-  res.status(200).json(result);
+  const raw = data.content[0].text;
+const match = raw.match(/\{[\s\S]*\}/);
+if (!match) throw new Error('Ingen JSON funnet i svar');
+const result = JSON.parse(match[0]);
+res.status(200).json(result);
 }
