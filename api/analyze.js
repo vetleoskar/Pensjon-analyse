@@ -3,7 +3,7 @@ export default async function handler(req, res) {
   
   const { text } = req.body;
   
-  try {
+  async function callClaude() {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -93,19 +93,29 @@ SVAR MED DETTE JSON-FORMATET:
     const data = await response.json();
 
     if (!data.content || !data.content[0]) {
-      return res.status(500).json({ error: 'Tomt svar fra API', detaljer: data });
+      throw new Error('Tomt svar fra API');
     }
 
     const raw = data.content[0].text;
     const match = raw.match(/\{[\s\S]*\}/);
 
     if (!match) {
-      return res.status(500).json({ error: 'Ingen JSON i svar', raSvar: raw });
+      throw new Error('Ingen JSON i svar');
     }
 
-    const result = JSON.parse(match[0]);
-    res.status(200).json(result);
+    return JSON.parse(match[0]);
+  }
 
+  try {
+    let result;
+    try {
+      result = await callClaude();
+    } catch(e) {
+      console.log('Første forsøk feilet, prøver igjen:', e.message);
+      await new Promise(r => setTimeout(r, 1000));
+      result = await callClaude();
+    }
+    res.status(200).json(result);
   } catch(e) {
     res.status(500).json({ error: e.message });
   }
