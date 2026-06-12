@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pensjonstekst-analyse</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f4f9; color: #1a1a1a; min-height: 100vh; }
@@ -381,6 +381,8 @@ function render(r, originalText) {
       </div>
     </div>`;
 
+  window.lastResult = r;
+  window.lastText = originalText;
   const canvas = document.getElementById('gauge');
   if (canvas) drawGauge(canvas, r.forstaelsegrad);
 }
@@ -396,15 +398,132 @@ function copyText() {
 }
 
 function downloadPDF() {
-  const el = document.getElementById('out');
-  const opt = {
-    margin: 10,
-    filename: 'pensjon-analyse.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  const r = window.lastResult;
+  const text = window.lastText;
+  if (!r) return;
+  const { grade } = getGrade(r.forstaelsegrad);
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  let y = 20;
+  const lm = 15;
+  const pw = 180;
+
+  const addTitle = (t) => {
+    if (y > 260) { doc.addPage(); y = 20; }
+    doc.setFillColor(0, 39, 118);
+    doc.rect(lm, y - 5, pw, 8, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text(t.toUpperCase(), lm + 3, y);
+    doc.setTextColor(26, 26, 26);
+    y += 10;
   };
-  html2pdf().set(opt).from(el).save();
+
+  const addText = (t, size = 11, bold = false) => {
+    doc.setFontSize(size);
+    doc.setFont('helvetica', bold ? 'bold' : 'normal');
+    const lines = doc.splitTextToSize(String(t), pw);
+    lines.forEach(line => {
+      if (y > 270) { doc.addPage(); y = 20; }
+      doc.text(line, lm, y);
+      y += size * 0.5 + 1;
+    });
+    y += 3;
+  };
+
+  const addBullet = (t) => {
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    const lines = doc.splitTextToSize('• ' + t, pw - 4);
+    lines.forEach(line => {
+      if (y > 270) { doc.addPage(); y = 20; }
+      doc.text(line, lm + 3, y);
+      y += 5;
+    });
+  };
+
+  doc.setFillColor(0, 39, 118);
+  doc.rect(0, 0, 210, 30, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(18); doc.setFont('helvetica', 'bold');
+  doc.text('Pensjonstekst Analyse', lm, 14);
+  doc.setFontSize(10); doc.setFont('helvetica', 'normal');
+  doc.text('Generert: ' + new Date().toLocaleDateString('no-NO') + ' ' + new Date().toLocaleTimeString('no-NO', {hour:'2-digit',minute:'2-digit'}), lm, 23);
+  doc.setTextColor(26, 26, 26);
+  y = 40;
+
+  doc.setFillColor(245, 245, 243);
+  doc.rect(lm, y, pw, 24, 'F');
+  doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(136,136,136);
+  doc.text('FORSTÅELSESGRAD', lm + 4, y + 7);
+  doc.text('KARAKTER', lm + 68, y + 7);
+  doc.text('LESBARHET', lm + 120, y + 7);
+  doc.setFontSize(22); doc.setFont('helvetica', 'bold');
+  const fc = r.forstaelsegrad >= 65 ? [22,101,52] : r.forstaelsegrad >= 40 ? [146,64,14] : [153,27,27];
+  doc.setTextColor(...fc);
+  doc.text(r.forstaelsegrad + '%', lm + 4, y + 19);
+  doc.setTextColor(26,26,26);
+  doc.text(grade, lm + 68, y + 19);
+  doc.text(r.lesbarhet + '/100', lm + 120, y + 19);
+  doc.setTextColor(26,26,26);
+  y += 32;
+
+  addTitle('Overordnet vurdering');
+  addText(r.oppsummering);
+
+  addTitle('Analysert tekst');
+  addText(text.substring(0, 400) + (text.length > 400 ? '...' : ''));
+
+  if (r.vanskeligeBegreper && r.vanskeligeBegreper.length > 0) {
+    addTitle(`Vanskelige begreper (${r.vanskeligeBegreper.length})`);
+    r.vanskeligeBegreper.forEach(b => {
+      addText(`${b.begrep} [${b.alvorlighet}]`, 11, true);
+      addText(b.forklaring, 10);
+      if (b.forskningsdata) {
+        doc.setTextColor(136,136,136);
+        addText(b.forskningsdata, 9);
+        doc.setTextColor(26,26,26);
+      }
+      y += 1;
+    });
+  }
+
+  if (r.ordbytte && r.ordbytte.length > 0) {
+    addTitle('Ordbytte-forslag');
+    r.ordbytte.forEach(o => {
+      addText(`Bytt ut: "${o.original}"`, 11, true);
+      const best = [...o.forslag].sort((a,b) => b.score - a.score);
+      best.forEach((f, i) => {
+        addBullet(`${f.tekst} (${f.score}/10)${i === 0 ? ' ★' : ''} – ${f.begrunnelse}`);
+      });
+      y += 2;
+    });
+  }
+
+  addTitle('Styrker');
+  (r.styrker || []).forEach(s => addBullet(s));
+
+  addTitle('Svakheter');
+  (r.svakheter || []).forEach(s => addBullet(s));
+
+  if (r.klarsprakTips && r.klarsprakTips.length > 0) {
+    addTitle('Klarspråk-tips');
+    r.klarsprakTips.forEach(t => addBullet(`${t.prinsipp}: ${t.eksempel}`));
+  }
+
+  addTitle('Forslag til forbedret tekst');
+  addText(r.forbedretTekst);
+
+  const totalPages = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8); doc.setTextColor(180,180,180);
+    doc.text(`Side ${i} av ${totalPages}`, 105, 292, { align: 'center' });
+    doc.text('Basert på: Fafo 2022 · ISF/Grødem 2019 · Norstat/Norsk Pensjon 2025 · SPK 2025 · Finans Norge 2016', 105, 287, { align: 'center' });
+  }
+
+  doc.save('pensjon-analyse.pdf');
 }
 
 renderHistory();
