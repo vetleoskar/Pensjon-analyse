@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pensjonstekst-analyse</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; color: #1a1a1a; min-height: 100vh; }
+  .container { max-width: 780px; margin: 0 auto; padding: 2rem 1rem; }
+  h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+  .sub { font-size: 13px; color: #666; margin-bottom: 1rem; }
+  .sources { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 1.25rem; }
+  .src { font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 20px; background: #fff; color: #555; border: 1px solid #ddd; }
+  textarea { width: 100%; min-height: 130px; font-size: 14px; padding: 12px; border-radius: 8px; border: 1px solid #ddd; resize: vertical; font-family: inherit; line-height: 1.6; background: #fff; }
+  textarea:focus { outline: none; border-color: #999; }
+  .btns { display: flex; gap: 8px; margin-top: 10px; }
+  button { padding: 9px 20px; font-size: 14px; font-weight: 500; cursor: pointer; border-radius: 8px; border: 1px solid #ccc; background: #fff; color: #1a1a1a; transition: background 0.15s; }
+  button:hover { background: #f0f0f0; }
+  button.primary { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  button.primary:hover { background: #333; }
+  .card { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 1.25rem; margin-top: 1.5rem; }
+  .sec { margin-bottom: 1.25rem; }
+  .sec:last-child { margin-bottom: 0; }
+  .st { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+  .hr { border: none; border-top: 1px solid #f0f0f0; margin: 1rem 0; }
+  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .metric { background: #f9f9f7; border-radius: 8px; padding: 10px 12px; }
+  .ml { font-size: 11px; color: #888; margin-bottom: 3px; }
+  .mv { font-size: 22px; font-weight: 600; }
+  .ms { font-size: 11px; color: #aaa; margin-top: 1px; }
+  .seg-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
+  .seg-lbl { font-size: 12px; color: #666; width: 160px; flex-shrink: 0; }
+  .bar-bg { flex: 1; height: 5px; background: #eee; border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+  .seg-pct { font-size: 12px; color: #888; width: 32px; text-align: right; }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; flex-shrink: 0; }
+  .tag-red { background: #fef2f2; color: #991b1b; }
+  .tag-amber { background: #fffbeb; color: #92400e; }
+  .begrep-row { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+  .begrep-info { flex: 1; }
+  .begrep-forklaring { font-size: 13px; color: #1a1a1a; line-height: 1.5; }
+  .begrep-kilde { font-size: 11px; color: #888; margin-top: 2px; }
+  .ob { background: #f9f9f7; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+  .ob-title { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; }
+  .ob-title .hl { background: #fef2f2; color: #991b1b; padding: 1px 5px; border-radius: 4px; }
+  .ob-title .ctx { font-size: 11px; color: #888; font-weight: 400; }
+  .forslag-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .forslag-tekst { font-size: 13px; flex: 1; }
+  .forslag-tekst em { background: #f0fdf4; color: #166534; padding: 1px 5px; border-radius: 4px; font-style: normal; font-weight: 500; }
+  .forslag-tekst small { font-size: 11px; color: #888; }
+  .score-wrap { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+  .score-bar-bg { width: 55px; height: 4px; background: #e5e5e5; border-radius: 2px; overflow: hidden; }
+  .score-bar { height: 100%; border-radius: 2px; }
+  .score-num { font-size: 11px; font-weight: 600; min-width: 28px; }
+  .best-badge { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 20px; background: #f0fdf4; color: #166534; flex-shrink: 0; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  ul.li { padding-left: 16px; }
+  ul.li li { font-size: 13px; line-height: 1.6; margin-bottom: 4px; color: #1a1a1a; }
+  .tip { font-size: 13px; padding: 8px 10px; background: #f9f9f7; margin-bottom: 6px; border-left: 2px solid #ccc; line-height: 1.5; }
+  .improved { font-size: 13px; line-height: 1.7; background: #f9f9f7; padding: 12px; border-radius: 8px; white-space: pre-wrap; color: #1a1a1a; }
+  .summary { font-size: 14px; line-height: 1.7; color: #1a1a1a; }
+  .loading { display: flex; align-items: center; gap: 8px; color: #888; font-size: 14px; padding: 1.25rem 0; }
+  .spinner { width: 16px; height: 16px; border: 2px solid #ddd; border-top-color: #888; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error { color: #991b1b; font-size: 14px; padding: 1rem 0; }
+  @media (max-width: 600px) {
+    .metrics { grid-template-columns: 1fr 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+    .seg-lbl { width: 120px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Pensjonstekst-analyse</h1>
+  <p class="sub">Analyser pensjonsfaglig tekst mot norsk forskningsgrunnlag</p>
+  <div class="sources">
+    <span class="src">Fafo 2022</span>
+    <span class="src">ISF/Grødem 2019</span>
+    <span class="src">Norstat/Norsk Pensjon 2025</span>
+    <span class="src">SPK 2025</span>
+    <span class="src">Finans Norge 2016</span>
+    <span class="src">Nyhus/UiA 2024</span>
+    <span class="src">Finans Norge + Språkrådet</span>
+  </div>
+  <textarea id="inp" placeholder="Lim inn pensjonsfaglig tekst her..."></textarea>
+  <div class="btns">
+    <button class="primary" onclick="analyse()">Analyser tekst</button>
+    <button onclick="document.getElementById('inp').value='';document.getElementById('out').innerHTML=''">Tøm</button>
+  </div>
+  <div id="out"></div>
+</div>
+<script>
+function col(v) {
+  if (v >= 65) return '#166534';
+  if (v >= 40) return '#92400e';
+  return '#991b1b';
+}
+function bcol(v) {
+  if (v >= 65) return '#16a34a';
+  if (v >= 40) return '#d97706';
+  return '#dc2626';
+}
+function scol(s) {
+  if (s >= 8) return '#16a34a';
+  if (s >= 5) return '#d97706';
+  return '#dc2626';
+}
+async function analyse() {
+  const text = document.getElementById('inp').value.trim();
+  if (!text) return;
+  const out = document.getElementById('out');
+  out.innerHTML = '<div class="loading"><div class="spinner"></div>Analyserer teksten...</div>';
+  try {
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+    if (!res.ok) throw new Error('API-feil: ' + res.status);
+    const r = await res.json();
+    render(r);
+  } catch(e) {
+    out.innerHTML = '<p class="error">Noe gikk galt: ' + e.message + '</p>';
+  }
+}
+function render(r) {
+  const seg = r.segmentForstaelse || {};
+  const segs = [
+    ['Unge under 35', seg.unge_under35],
+    ['Middelaldrende 35–50', seg.middelaldrende_35_50],
+    ['Eldre over 50', seg.eldre_over50],
+    ['Lav utdanning', seg.lav_utdanning],
+    ['Høy utdanning', seg.hoy_utdanning],
+    ['Kvinner', seg.kvinner],
+    ['Menn', seg.menn],
+  ];
+  const begriper = (r.vanskeligeBegreper || []).map(b => `
+    <div class="begrep-row">
+      <span class="tag ${b.alvorlighet === 'kritisk' ? 'tag-red' : 'tag-amber'}">${b.begrep}</span>
+      <div class="begrep-info">
+        <div class="begrep-forklaring">${b.forklaring}</div>
+        ${b.forskningsdata ? `<div class="begrep-kilde">${b.forskningsdata}</div>` : ''}
+      </div>
+    </div>`).join('');
+  const ordbytte = (r.ordbytte || []).map(o => {
+    const sorted = [...(o.forslag || [])].sort((a, b) => b.score - a.score);
+    return `
+    <div class="ob">
+      <div class="ob-title">Bytt ut: <span class="hl">${o.original}</span> <span class="ctx">– «${o.kontekst}»</span></div>
+      ${sorted.map((f, i) => `
+        <div class="forslag-row">
+          <div class="forslag-tekst"><em>${f.tekst}</em> <small>– ${f.begrunnelse}</small></div>
+          <div class="score-wrap">
+            ${i === 0 ? '<span class="best-badge">Anbefalt</span>' : ''}
+            <div class="score-bar-bg"><div class="score-bar" style="width:${f.score * 10}%;background:${scol(f.score)}"></div></div>
+            <span class="score-num" style="color:${scol(f.score)}">${f.score}/10</span>
+          </div>
+        </div>`).join('')}
+    </div>`;
+  }).join('');
+  const tips = (r.klarsprakTips || []).map(t =>
+    `<div class="tip"><strong>${t.prinsipp}:</strong> ${t.eksempel}</div>`).join('');
+  document.getElementById('out').innerHTML = `
+    <div class="card">
+      <div class="sec"><div class="st">Overordnet vurdering</div><p class="summary">${r.oppsummering}</p></div>
+      <div class="hr"></div>
+      <div class="sec">
+        <div class="metrics">
+          <div class="metric"><div class="ml">Forståelsesgrad</div><div class="mv" style="color:${col(r.forstaelsegrad)}">${r.forstaelsegrad}%</div><div class="ms">av befolkningen</div></div>
+          <div class="metric"><div class="ml">Lesbarhet</div><div class="mv" style="color:${col(r.lesbarhet)}">${r.lesbarhet}/100</div><div class="ms">høyere = lettere</div></div>
+          <div class="metric"><div class="ml">Kompleksitet</div><div class="mv" style="font-size:15px;padding-top:4px">${r.kompleksitet}</div><div class="ms">&nbsp;</div></div>
+        </div>
+      </div>
+      <div class="hr"></div>
+      <div class="sec">
+        <div class="st">Forståelse per segment</div>
+        ${segs.map(([l, v]) => `
+          <div class="seg-row">
+            <span class="seg-lbl">${l}</span>
+            <div class="bar-bg"><div class="bar-fill" style="width:${v}%;background:${bcol(v)}"></div></div>
+            <span class="seg-pct">${v}%</span>
+          </div>`).join('')}
+      </div>
+      ${begriper ? `<div class="hr"></div><div class="sec"><div class="st">Vanskelige begreper (${(r.vanskeligeBegreper || []).length})</div>${begriper}</div>` : ''}
+      ${ordbytte ? `<div class="hr"></div><div class="sec"><div class="st">Ordbytte-forslag</div>${ordbytte}</div>` : ''}
+      <div class="hr"></div>
+      <div class="sec">
+        <div class="two-col">
+          <div><div class="st">Styrker</div><ul class="li">${(r.styrker || []).map(s => `<li>${s}</li>`).join('')}</ul></div>
+          <div><div class="st">Svakheter</div><ul class="li">${(r.svakheter || []).map(s => `<li>${s}</li>`).join('')}</ul></div>
+        </div>
+      </div>
+      ${tips ? `<div class="hr"></div><div class="sec"><div class="st">Klarspråk-tips</div>${tips}</div>` : ''}
+      <div class="hr"></div>
+      <div class="sec"><div class="st">Forslag til forbedret tekst</div><div class="improved" style="margin-top:8px">${r.forbedretTekst}</div></div>
+    </div>`;
+}
+</script>
+</body>
+</html>
