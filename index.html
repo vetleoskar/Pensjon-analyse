@@ -165,12 +165,13 @@ function scol(s) {
   return '#dc2626';
 }
 function getGrade(fg) {
-  if (fg >= 75) return { grade: 'A', color: '#166534' };
-  if (fg >= 62) return { grade: 'B', color: '#166534' };
+  if (fg >= 80) return { grade: 'A', color: '#166534' };
+  if (fg >= 65) return { grade: 'B', color: '#166534' };
   if (fg >= 50) return { grade: 'C', color: '#92400e' };
-  if (fg >= 38) return { grade: 'D', color: '#92400e' };
-  if (fg >= 25) return { grade: 'E', color: '#991b1b' };
+  if (fg >= 35) return { grade: 'D', color: '#92400e' };
+  if (fg >= 20) return { grade: 'E', color: '#991b1b' };
   return { grade: 'F', color: '#991b1b' };
+}
 }
 
 function drawGauge(canvas, value) {
