@@ -50,6 +50,10 @@ SVAR MED AKKURAT DETTE JSON-FORMATET - ingen andre tegn:
     res.status(200).json(result);
 
   } catch(e) {
-    res.status(500).json({ error: e.message });
+    res.status(500).json({ 
+  error: e.message,
+  apiKey: process.env.ANTHROPIC_API_KEY ? 'Funnet' : 'MANGLER',
+  model: 'claude-haiku-4-5-20251001'
+});
   }
 }
