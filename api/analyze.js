@@ -13,7 +13,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 3000,
+        max_tokens: 4096,
         system: `Du er ekspert på pensjonskommunikasjon. Analyser teksten og svar KUN med et JSON-objekt. Ingen markdown, ingen forklaring, ingen tekst før eller etter. Bare JSON.
 
 FORSKNINGSGRUNNLAG:
@@ -39,7 +39,7 @@ opptjening->["pensjon du tjener opp"(9),"det du sparer opp i pensjon"(8)]
 pensjonskapital->["oppspart pensjon"(9),"pensjonssaldo"(7)]
 avkastning->["vekst i pensjonssparingen"(9),"gevinst på pensjonspengene"(8)]
 allokering->["fordeling av pensjonspengene"(9),"investeringsfordeling"(7)]
-
+Begrens deg til maks 6 vanskelige begreper og maks 5 ordbytte-forslag, selv om teksten inneholder flere. Velg de mest kritiske. Hold "forbedretTekst" konsis.
 SVAR MED DETTE JSON-FORMATET:
 {
   "forstaelsegrad": <0-100>,
