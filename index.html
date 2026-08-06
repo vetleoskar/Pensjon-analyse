@@ -25,13 +25,21 @@
   .sec:last-child { margin-bottom: 0; }
   .st { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
   .hr { border: none; border-top: 1px solid #f0f0f0; margin: 1rem 0; }
-  .top-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; align-items: center; }
-  .metric { background: #f9f9f7; border-radius: 8px; padding: 10px 12px; text-align: center; }
-  .ml { font-size: 11px; color: #888; margin-bottom: 3px; }
-  .mv { font-size: 22px; font-weight: 600; }
-  .ms { font-size: 11px; color: #aaa; margin-top: 1px; }
-  .grade { font-size: 48px; font-weight: 700; line-height: 1; }
-  .grade-label { font-size: 11px; color: #888; margin-top: 4px; }
+  .circles-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 8px; }
+  .circle-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .circle-label { font-size: 11px; color: #888; text-align: center; }
+  .circle-sub { font-size: 10px; color: #aaa; text-align: center; margin-top: -4px; }
+  .circle-wrap { position: relative; width: 80px; height: 80px; }
+  .circle-wrap svg { transform: rotate(-90deg); }
+  .circle-val { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 18px; font-weight: 700; }
+  .readtime { font-size: 12px; color: #666; text-align: center; margin-top: 4px; }
+  .top-summary { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .sum-card { background: #f9f9f7; border-radius: 8px; padding: 10px 12px; text-align: center; }
+  .sum-lbl { font-size: 11px; color: #888; margin-bottom: 3px; }
+  .sum-val { font-size: 20px; font-weight: 600; }
+  .sum-sub { font-size: 10px; color: #aaa; margin-top: 1px; }
+  .grade { font-size: 42px; font-weight: 700; line-height: 1; }
+  .grade-label { font-size: 10px; color: #888; margin-top: 3px; }
   .gauge-wrap { display: flex; flex-direction: column; align-items: center; }
   .seg-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
   .seg-lbl { font-size: 12px; color: #666; width: 160px; flex-shrink: 0; }
@@ -98,8 +106,10 @@
   .history-score { font-size: 13px; color: #888; }
   .history-delete { font-size: 12px; color: #aaa; cursor: pointer; padding: 2px 6px; border-radius: 4px; border: 1px solid #eee; background: #fff; }
   .history-delete:hover { color: #991b1b; border-color: #991b1b; }
+  .lix-label { font-size: 12px; font-weight: 600; text-align: center; margin-top: 2px; }
   @media (max-width: 600px) {
-    .top-metrics { grid-template-columns: 1fr 1fr; }
+    .circles-grid { grid-template-columns: repeat(3, 1fr); }
+    .top-summary { grid-template-columns: 1fr 1fr; }
     .two-col { grid-template-columns: 1fr; }
     .seg-lbl { width: 120px; }
     .sources-grid { grid-template-columns: 1fr; }
@@ -173,36 +183,75 @@ function getGrade(fg) {
   return { grade: 'F', color: '#991b1b' };
 }
 
-function drawGauge(canvas, value) {
-  const ctx = canvas.getContext('2d');
-  const w = canvas.width, h = canvas.height;
-  const cx = w / 2, cy = h - 10;
-  const r = Math.min(cx, cy) - 10;
-  ctx.clearRect(0, 0, w, h);
-  const segments = [
-    { from: Math.PI, to: Math.PI * 1.25, color: '#dc2626' },
-    { from: Math.PI * 1.25, to: Math.PI * 1.5, color: '#f97316' },
-    { from: Math.PI * 1.5, to: Math.PI * 1.75, color: '#eab308' },
-    { from: Math.PI * 1.75, to: Math.PI * 2, color: '#16a34a' },
-  ];
-  segments.forEach(s => {
-    ctx.beginPath(); ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, r, s.from, s.to);
-    ctx.closePath(); ctx.fillStyle = s.color; ctx.fill();
-  });
-  ctx.beginPath(); ctx.arc(cx, cy, r * 0.6, 0, Math.PI * 2);
-  ctx.fillStyle = '#fff'; ctx.fill();
-  const angle = Math.PI + (value / 100) * Math.PI;
-  const nx = cx + r * 0.75 * Math.cos(angle);
-  const ny = cy + r * 0.75 * Math.sin(angle);
-  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(nx, ny);
-  ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 2.5; ctx.stroke();
-  ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI * 2);
-  ctx.fillStyle = '#1a1a1a'; ctx.fill();
-  ctx.fillStyle = col(value);
-  ctx.font = 'bold 18px -apple-system, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText(value + '%', cx, cy - r * 0.25);
+function beregnLIX(tekst) {
+  const ord = tekst.trim().split(/\s+/).filter(w => w.length > 0);
+  const A = ord.length;
+  if (A === 0) return 0;
+  const setninger = tekst.split(/[.!?]+/).filter(s => s.trim().length > 2);
+  const B = Math.max(1, setninger.length);
+  const C = ord.filter(w => w.replace(/[^a-zA-ZæøåÆØÅ]/g, '').length > 6).length;
+  return Math.round(A / B + (C * 100) / A);
+}
+
+function lixLabel(lix) {
+  if (lix < 25) return { label: 'Svært lettlest', sub: 'Barnebøker', color: '#16a34a' };
+  if (lix < 30) return { label: 'Lettlest', sub: 'Enkle tekster', color: '#16a34a' };
+  if (lix < 40) return { label: 'Normal', sub: 'Skjønnlitteratur', color: '#16a34a' };
+  if (lix < 50) return { label: 'Middels', sub: 'Avistekst', color: '#d97706' };
+  if (lix < 60) return { label: 'Vanskelig', sub: 'Sakprosa', color: '#d97706' };
+  return { label: 'Svært vanskelig', sub: 'Fagtekst/juss', color: '#dc2626' };
+}
+
+function beregnOrdvekt(tekst) {
+  const ord = tekst.trim().split(/\s+/).filter(w => w.length > 0);
+  if (!ord.length) return 0;
+  const snitt = ord.reduce((s, w) => s + w.replace(/[^a-zA-ZæøåÆØÅ]/g, '').length, 0) / ord.length;
+  return Math.min(100, Math.round((snitt / 12) * 100));
+}
+
+function beregnSetningsvekt(tekst) {
+  const setninger = tekst.split(/[.!?]+/).filter(s => s.trim().length > 2);
+  if (!setninger.length) return 0;
+  const snittOrd = setninger.reduce((s, sen) => s + sen.trim().split(/\s+/).length, 0) / setninger.length;
+  return Math.min(100, Math.round((snittOrd / 30) * 100));
+}
+
+function beregnOrdvariasjon(tekst) {
+  const ord = tekst.toLowerCase().trim().split(/\s+/).filter(w => w.replace(/[^a-zA-ZæøåÆØÅ]/g, '').length > 2);
+  if (!ord.length) return 0;
+  const unike = new Set(ord.map(w => w.replace(/[^a-zA-ZæøåÆØÅ]/g, ''))).size;
+  return Math.min(100, Math.round((unike / ord.length) * 100));
+}
+
+function beregnLesetid(tekst) {
+  const ord = tekst.trim().split(/\s+/).filter(w => w.length > 0).length;
+  const sekunder = Math.round((ord / 200) * 60);
+  const min = Math.floor(sekunder / 60);
+  const sek = sekunder % 60;
+  return min > 0 ? `${min} min ${sek} sek` : `${sek} sek`;
+}
+
+function beregnPensjonsscore(begreper, antallOrd) {
+  if (!antallOrd) return 100;
+  const kritiske = (begreper || []).filter(b => b.alvorlighet === 'kritisk').length;
+  const moderate = (begreper || []).filter(b => b.alvorlighet === 'moderat').length;
+  const tetthet = ((kritiske * 3 + moderate * 1.5) / antallOrd) * 100;
+  return Math.max(0, Math.min(100, Math.round(100 - tetthet * 15)));
+}
+
+function drawCircle(id, value, max, color) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const r = 30;
+  const circ = 2 * Math.PI * r;
+  const pct = Math.min(1, value / max);
+  el.innerHTML = `
+    <svg width="80" height="80" viewBox="0 0 80 80">
+      <circle cx="40" cy="40" r="${r}" fill="none" stroke="#eee" stroke-width="7"/>
+      <circle cx="40" cy="40" r="${r}" fill="none" stroke="${color}" stroke-width="7"
+        stroke-dasharray="${circ * pct} ${circ * (1 - pct)}"
+        stroke-linecap="round" transform="rotate(-90 40 40)"/>
+    </svg>`;
 }
 
 function highlightText(text, begreper) {
@@ -216,11 +265,11 @@ function highlightText(text, begreper) {
   return result;
 }
 
-function saveToHistory(text, result) {
+function saveToHistory(text, result, lix, pensjonsscore) {
   const { grade, color } = getGrade(result.forstaelsegrad);
   const now = new Date();
   const time = now.toLocaleDateString('no-NO') + ' ' + now.toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' });
-  history.unshift({ id: Date.now(), time, text, result, grade, color });
+  history.unshift({ id: Date.now(), time, text, result, grade, color, lix, pensjonsscore });
   if (history.length > 20) history.pop();
   renderHistory();
 }
@@ -237,6 +286,7 @@ function renderHistory() {
         <div class="history-meta">
           <span class="history-grade" style="color:${h.color}">${h.grade}</span>
           <span class="history-score">${h.result.forstaelsegrad}% forståelse</span>
+          <span class="history-score">LIX: ${h.lix}</span>
           <span class="history-time">${h.time}</span>
         </div>
         <button class="history-delete" onclick="event.stopPropagation();deleteHistory(${i})">Slett</button>
@@ -273,7 +323,10 @@ async function analyse() {
     if (!res.ok) throw new Error('API-feil: ' + res.status);
     const r = await res.json();
     render(r, text);
-    saveToHistory(text, r);
+    const lix = beregnLIX(text);
+    const antallOrd = text.trim().split(/\s+/).length;
+    const pensjonsscore = beregnPensjonsscore(r.vanskeligeBegreper, antallOrd);
+    saveToHistory(text, r, lix, pensjonsscore);
     document.getElementById('downloadWrap').style.display = 'block';
   } catch(e) {
     out.innerHTML = '<p class="error">Noe gikk galt: ' + e.message + '</p>';
@@ -293,6 +346,16 @@ function render(r, originalText) {
   ];
   const { grade, color: gradeColor } = getGrade(r.forstaelsegrad);
   const highlightedHTML = highlightText(originalText, r.vanskeligeBegreper || []);
+
+  const lix = beregnLIX(originalText);
+  const lixInfo = lixLabel(lix);
+  const ordvekt = beregnOrdvekt(originalText);
+  const setningsvekt = beregnSetningsvekt(originalText);
+  const ordvariasjon = beregnOrdvariasjon(originalText);
+  const lesetid = beregnLesetid(originalText);
+  const antallOrd = originalText.trim().split(/\s+/).filter(w => w.length > 0).length;
+  const pensjonsscore = beregnPensjonsscore(r.vanskeligeBegreper, antallOrd);
+
   const begriper = (r.vanskeligeBegreper || []).map(b => `
     <div class="begrep-row">
       <span class="tag ${b.alvorlighet === 'kritisk' ? 'tag-red' : 'tag-amber'}">${b.begrep}</span>
@@ -301,6 +364,7 @@ function render(r, originalText) {
         ${b.forskningsdata ? `<div class="begrep-kilde">${b.forskningsdata}</div>` : ''}
       </div>
     </div>`).join('');
+
   const ordbytte = (r.ordbytte || []).map(o => {
     const sorted = [...(o.forslag || [])].sort((a, b) => b.score - a.score);
     return `
@@ -317,6 +381,7 @@ function render(r, originalText) {
         </div>`).join('')}
     </div>`;
   }).join('');
+
   const tips = (r.klarsprakTips || []).map(t =>
     `<div class="tip"><strong>${t.prinsipp}:</strong> ${t.eksempel}</div>`).join('');
 
@@ -325,19 +390,60 @@ function render(r, originalText) {
       <div class="sec"><div class="st">Overordnet vurdering</div><p class="summary">${r.oppsummering}</p></div>
       <div class="hr"></div>
       <div class="sec">
-        <div class="top-metrics">
-          <div class="metric gauge-wrap">
-            <div class="ml">Forståelsesgrad</div>
-            <canvas id="gauge" width="140" height="80"></canvas>
+        <div class="top-summary">
+          <div class="sum-card gauge-wrap">
+            <div class="sum-lbl">Forståelsesgrad</div>
+            <div class="sum-val" style="color:${col(r.forstaelsegrad)}">${r.forstaelsegrad}%</div>
+            <div class="sum-sub">av befolkningen</div>
           </div>
-          <div class="metric">
-            <div class="ml">Karakter</div>
+          <div class="sum-card">
+            <div class="sum-lbl">Karakter</div>
             <div class="grade" style="color:${gradeColor}">${grade}</div>
             <div class="grade-label">basert på forståelsesgrad</div>
           </div>
-          <div style="display:flex;flex-direction:column;gap:8px;">
-            <div class="metric"><div class="ml">Lesbarhet</div><div class="mv" style="color:${col(r.lesbarhet)}">${r.lesbarhet}/100</div><div class="ms">høyere = lettere</div></div>
-            <div class="metric"><div class="ml">Kompleksitet</div><div class="mv" style="font-size:15px;padding-top:2px">${r.kompleksitet}</div></div>
+          <div class="sum-card">
+            <div class="sum-lbl">Lesetid</div>
+            <div class="sum-val" style="font-size:15px;padding-top:4px">${lesetid}</div>
+            <div class="sum-sub">${antallOrd} ord</div>
+          </div>
+        </div>
+        <div class="st" style="margin-top:16px;">Lesbarhetsindekser</div>
+        <div class="circles-grid">
+          <div class="circle-item">
+            <div class="circle-label">LIX</div>
+            <div class="circle-wrap" id="cLix">
+              <div class="circle-val" style="color:${lixInfo.color}">${lix}</div>
+            </div>
+            <div class="lix-label" style="color:${lixInfo.color}">${lixInfo.label}</div>
+            <div class="circle-sub">${lixInfo.sub}</div>
+          </div>
+          <div class="circle-item">
+            <div class="circle-label">Ordvekt</div>
+            <div class="circle-wrap" id="cOrdvekt">
+              <div class="circle-val" style="color:${bcol(100-ordvekt)}">${ordvekt}</div>
+            </div>
+            <div class="circle-sub">Lengde på ord</div>
+          </div>
+          <div class="circle-item">
+            <div class="circle-label">Ordvariasjon</div>
+            <div class="circle-wrap" id="cOrdvar">
+              <div class="circle-val" style="color:${bcol(ordvariasjon)}">${ordvariasjon}</div>
+            </div>
+            <div class="circle-sub">Unike ord</div>
+          </div>
+          <div class="circle-item">
+            <div class="circle-label">Setningsvekt</div>
+            <div class="circle-wrap" id="cSetning">
+              <div class="circle-val" style="color:${bcol(100-setningsvekt)}">${setningsvekt}</div>
+            </div>
+            <div class="circle-sub">Setningslengde</div>
+          </div>
+          <div class="circle-item">
+            <div class="circle-label">Pensjonsfaglig</div>
+            <div class="circle-wrap" id="cPensjon">
+              <div class="circle-val" style="color:${bcol(pensjonsscore)}">${pensjonsscore}</div>
+            </div>
+            <div class="circle-sub">Fagbegreptetthet</div>
           </div>
         </div>
       </div>
@@ -383,8 +489,15 @@ function render(r, originalText) {
 
   window.lastResult = r;
   window.lastText = originalText;
-  const canvas = document.getElementById('gauge');
-  if (canvas) drawGauge(canvas, r.forstaelsegrad);
+  window.lastLix = lix;
+  window.lastPensjonsscore = pensjonsscore;
+
+  const lixPct = Math.min(100, lix);
+  drawCircle('cLix', Math.min(100, 100 - (lix - 20)), 100, lixInfo.color);
+  drawCircle('cOrdvekt', 100 - ordvekt, 100, bcol(100 - ordvekt));
+  drawCircle('cOrdvar', ordvariasjon, 100, bcol(ordvariasjon));
+  drawCircle('cSetning', 100 - setningsvekt, 100, bcol(100 - setningsvekt));
+  drawCircle('cPensjon', pensjonsscore, 100, bcol(pensjonsscore));
 }
 
 function copyText() {
@@ -397,9 +510,19 @@ function copyText() {
   });
 }
 
+function sanitize(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/\u00e6/g, 'ae').replace(/\u00f8/g, 'o').replace(/\u00e5/g, 'a')
+    .replace(/\u00c6/g, 'Ae').replace(/\u00d8/g, 'O').replace(/\u00c5/g, 'A')
+    .replace(/[^\x00-\x7F]/g, '');
+}
+
 function downloadPDF() {
   const r = window.lastResult;
   const text = window.lastText;
+  const lix = window.lastLix;
+  const pensjonsscore = window.lastPensjonsscore;
   if (!r) return;
   const { grade } = getGrade(r.forstaelsegrad);
   const { jsPDF } = window.jspdf;
@@ -413,9 +536,8 @@ function downloadPDF() {
     doc.setFillColor(0, 39, 118);
     doc.rect(lm, y - 5, pw, 8, 'F');
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
-    doc.text(t.toUpperCase(), lm + 3, y);
+    doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+    doc.text(sanitize(t).toUpperCase(), lm + 3, y);
     doc.setTextColor(26, 26, 26);
     y += 10;
   };
@@ -423,7 +545,7 @@ function downloadPDF() {
   const addText = (t, size = 11, bold = false) => {
     doc.setFontSize(size);
     doc.setFont('helvetica', bold ? 'bold' : 'normal');
-    const lines = doc.splitTextToSize(String(t), pw);
+    const lines = doc.splitTextToSize(sanitize(t), pw);
     lines.forEach(line => {
       if (y > 270) { doc.addPage(); y = 20; }
       doc.text(line, lm, y);
@@ -433,9 +555,8 @@ function downloadPDF() {
   };
 
   const addBullet = (t) => {
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    const lines = doc.splitTextToSize('• ' + t, pw - 4);
+    doc.setFontSize(10); doc.setFont('helvetica', 'normal');
+    const lines = doc.splitTextToSize('- ' + sanitize(t), pw - 4);
     lines.forEach(line => {
       if (y > 270) { doc.addPage(); y = 20; }
       doc.text(line, lm + 3, y);
@@ -456,16 +577,18 @@ function downloadPDF() {
   doc.setFillColor(245, 245, 243);
   doc.rect(lm, y, pw, 24, 'F');
   doc.setFontSize(9); doc.setFont('helvetica', 'bold'); doc.setTextColor(136,136,136);
-  doc.text('FORSTÅELSESGRAD', lm + 4, y + 7);
-  doc.text('KARAKTER', lm + 68, y + 7);
-  doc.text('LESBARHET', lm + 120, y + 7);
-  doc.setFontSize(22); doc.setFont('helvetica', 'bold');
+  doc.text('FORSTAELSESGRAD', lm + 4, y + 7);
+  doc.text('KARAKTER', lm + 60, y + 7);
+  doc.text('LIX', lm + 110, y + 7);
+  doc.text('PENSJONSFAGLIG', lm + 145, y + 7);
+  doc.setFontSize(20); doc.setFont('helvetica', 'bold');
   const fc = r.forstaelsegrad >= 65 ? [22,101,52] : r.forstaelsegrad >= 40 ? [146,64,14] : [153,27,27];
   doc.setTextColor(...fc);
   doc.text(r.forstaelsegrad + '%', lm + 4, y + 19);
   doc.setTextColor(26,26,26);
-  doc.text(grade, lm + 68, y + 19);
-  doc.text(r.lesbarhet + '/100', lm + 120, y + 19);
+  doc.text(grade, lm + 60, y + 19);
+  doc.text(String(lix), lm + 110, y + 19);
+  doc.text(pensjonsscore + '/100', lm + 145, y + 19);
   doc.setTextColor(26,26,26);
   y += 32;
 
@@ -476,9 +599,9 @@ function downloadPDF() {
   addText(text.substring(0, 400) + (text.length > 400 ? '...' : ''));
 
   if (r.vanskeligeBegreper && r.vanskeligeBegreper.length > 0) {
-    addTitle(`Vanskelige begreper (${r.vanskeligeBegreper.length})`);
+    addTitle('Vanskelige begreper (' + r.vanskeligeBegreper.length + ')');
     r.vanskeligeBegreper.forEach(b => {
-      addText(`${b.begrep} [${b.alvorlighet}]`, 11, true);
+      addText(b.begrep + ' [' + b.alvorlighet + ']', 11, true);
       addText(b.forklaring, 10);
       if (b.forskningsdata) {
         doc.setTextColor(136,136,136);
@@ -492,10 +615,10 @@ function downloadPDF() {
   if (r.ordbytte && r.ordbytte.length > 0) {
     addTitle('Ordbytte-forslag');
     r.ordbytte.forEach(o => {
-      addText(`Bytt ut: "${o.original}"`, 11, true);
+      addText('Bytt ut: "' + o.original + '"', 11, true);
       const best = [...o.forslag].sort((a,b) => b.score - a.score);
       best.forEach((f, i) => {
-        addBullet(`${f.tekst} (${f.score}/10)${i === 0 ? ' ★' : ''} – ${f.begrunnelse}`);
+        addBullet(f.tekst + ' (' + f.score + '/10)' + (i === 0 ? ' *Anbefalt*' : '') + ' - ' + f.begrunnelse);
       });
       y += 2;
     });
@@ -508,8 +631,8 @@ function downloadPDF() {
   (r.svakheter || []).forEach(s => addBullet(s));
 
   if (r.klarsprakTips && r.klarsprakTips.length > 0) {
-    addTitle('Klarspråk-tips');
-    r.klarsprakTips.forEach(t => addBullet(`${t.prinsipp}: ${t.eksempel}`));
+    addTitle('Klarsprak-tips');
+    r.klarsprakTips.forEach(t => addBullet(t.prinsipp + ': ' + t.eksempel));
   }
 
   addTitle('Forslag til forbedret tekst');
@@ -519,8 +642,8 @@ function downloadPDF() {
   for (let i = 1; i <= totalPages; i++) {
     doc.setPage(i);
     doc.setFontSize(8); doc.setTextColor(180,180,180);
-    doc.text(`Side ${i} av ${totalPages}`, 105, 292, { align: 'center' });
-    doc.text('Basert på: Fafo 2022 · ISF/Grødem 2019 · Norstat/Norsk Pensjon 2025 · SPK 2025 · Finans Norge 2016', 105, 287, { align: 'center' });
+    doc.text('Side ' + i + ' av ' + totalPages, 105, 292, { align: 'center' });
+    doc.text('Basert pa: Fafo 2022, ISF/Grodem 2019, Norstat 2025, SPK 2025, Finans Norge 2016', 105, 287, { align: 'center' });
   }
 
   doc.save('pensjon-analyse.pdf');
