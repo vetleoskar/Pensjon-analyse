@@ -277,13 +277,16 @@ function drawCircle(id, value, max, color) {
   const r = 30;
   const circ = 2 * Math.PI * r;
   const pct = Math.min(1, value / max);
+  const valEl = el.querySelector('.circle-val');
+  const valHTML = valEl ? valEl.outerHTML : '';
   el.innerHTML = `
-    <svg width="80" height="80" viewBox="0 0 80 80">
+    <svg width="80" height="80" viewBox="0 0 80 80" style="position:absolute;top:0;left:0;">
       <circle cx="40" cy="40" r="${r}" fill="none" stroke="#eee" stroke-width="7"/>
       <circle cx="40" cy="40" r="${r}" fill="none" stroke="${color}" stroke-width="7"
         stroke-dasharray="${circ * pct} ${circ * (1 - pct)}"
         stroke-linecap="round" transform="rotate(-90 40 40)"/>
-    </svg>`;
+    </svg>
+    ${valHTML}`;
 }
 
 function highlightText(text, begreper) {
