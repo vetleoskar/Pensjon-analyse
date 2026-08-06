@@ -170,7 +170,7 @@
     <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:6px;"><strong>Ordvekt</strong> måler hvor lange ordene i teksten er i gjennomsnitt. Høy verdi betyr mange lange ord.</p>
     <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:6px;"><strong>Ordvariasjon</strong> måler hvor variert ordforrådet er. Høy variasjon kan gjøre teksten rikere, men lavere variasjon er lettere å lese for nybegynnere.</p>
     <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:6px;"><strong>Setningsvekt</strong> måler gjennomsnittlig setningslengde. Lange setninger er vanskeligere å lese.</p>
-    <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:1rem;"><strong>Pensjonsfaglig score</strong> er et egenutviklet mål på hvor mye pensjonsjargong teksten inneholder. 100 = ingen fagbegreper, lav score = mye jargong som folk flest ikke forstår.</p>
+    <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:1rem;"><strong>Pensjonsfaglig score</strong> er et egenutviklet mål på hvor mye pensjonssjargong teksten inneholder. 100 = ingen fagbegreper, lav score = mye sjargong som folk flest ikke forstår.</p>
     <h3 style="font-size:14px;font-weight:600;color:#002776;margin-bottom:6px;">Forskningsgrunnlag</h3>
     <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:1rem;">Analysen er basert på bl.a. Fafo (2022), ISF/Grødem (2019), Norstat/Norsk Pensjon (2025), SPK (2025) og Finans Norge/Norstat (2016). Forskningen dokumenterer hva nordmenn faktisk forstår av pensjonsspråk og hvilke begreper som er spesielt vanskelige.</p>
     <h3 style="font-size:14px;font-weight:600;color:#002776;margin-bottom:6px;">Forståelsesgrad og karakter</h3>
@@ -227,11 +227,11 @@ function lixLabel(lix) {
 }
 
 function pensjonscoreLabel(score) {
-  if (score >= 80) return { label: 'Lite jargong', color: '#16a34a' };
-  if (score >= 60) return { label: 'Noe jargong', color: '#16a34a' };
-  if (score >= 40) return { label: 'Moderat jargong', color: '#d97706' };
-  if (score >= 20) return { label: 'Mye jargong', color: '#dc2626' };
-  return { label: 'Svært mye jargong', color: '#dc2626' };
+  if (score >= 80) return { label: 'Lite sjargong', color: '#16a34a' };
+  if (score >= 60) return { label: 'Noe sjargong', color: '#16a34a' };
+  if (score >= 40) return { label: 'Moderat sjargong', color: '#d97706' };
+  if (score >= 20) return { label: 'Mye sjargong', color: '#dc2626' };
+  return { label: 'Svært mye sjargong', color: '#dc2626' };
 }
 
 function beregnOrdvekt(tekst) {
@@ -479,7 +479,7 @@ function render(r, originalText) {
               <div class="circle-val" style="color:${pensjonscoreLabel(pensjonsscore).color}">${pensjonsscore}</div>
             </div>
             <div class="lix-label" style="color:${pensjonscoreLabel(pensjonsscore).color}">${pensjonscoreLabel(pensjonsscore).label}</div>
-            <div class="circle-sub">100 = ingen jargong</div>
+            <div class="circle-sub">100 = ingen sjargong</div>
           </div>
         </div>
       </div>
