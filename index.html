@@ -540,15 +540,16 @@ function downloadPDF() {
   const lm = 15;
   const pw = 180;
 
-  const addTitle = (t) => {
-    if (y > 260) { doc.addPage(); y = 20; }
+const addTitle = (t) => {
+    if (y > 255) { doc.addPage(); y = 20; }
+    y += 4;
     doc.setFillColor(0, 39, 118);
-    doc.rect(lm, y - 5, pw, 8, 'F');
+    doc.rect(lm, y, pw, 9, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(9); doc.setFont('helvetica', 'bold');
-    doc.text(sanitize(t).toUpperCase(), lm + 3, y);
+    doc.text(sanitize(t).toUpperCase(), lm + 3, y + 6);
     doc.setTextColor(26, 26, 26);
-    y += 10;
+    y += 16;
   };
 
   const addText = (t, size = 11, bold = false) => {
