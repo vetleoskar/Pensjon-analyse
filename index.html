@@ -202,6 +202,14 @@ function lixLabel(lix) {
   return { label: 'Svært vanskelig', sub: 'Fagtekst/juss', color: '#dc2626' };
 }
 
+ function pensjonscoreLabel(score) {
+  if (score >= 80) return { label: 'Lite jargong', color: '#16a34a' };
+  if (score >= 60) return { label: 'Noe jargong', color: '#16a34a' };
+  if (score >= 40) return { label: 'Moderat jargong', color: '#d97706' };
+  if (score >= 20) return { label: 'Mye jargong', color: '#dc2626' };
+  return { label: 'Svært mye jargong', color: '#dc2626' };
+}
+
 function beregnOrdvekt(tekst) {
   const ord = tekst.trim().split(/\s+/).filter(w => w.length > 0);
   if (!ord.length) return 0;
@@ -235,8 +243,8 @@ function beregnPensjonsscore(begreper, antallOrd) {
   if (!antallOrd) return 100;
   const kritiske = (begreper || []).filter(b => b.alvorlighet === 'kritisk').length;
   const moderate = (begreper || []).filter(b => b.alvorlighet === 'moderat').length;
-  const tetthet = ((kritiske * 3 + moderate * 1.5) / antallOrd) * 100;
-  return Math.max(0, Math.min(100, Math.round(100 - tetthet * 15)));
+  const poeng = kritiske * 20 + moderate * 8;
+  return Math.max(0, Math.min(100, Math.round(100 - poeng)));
 }
 
 function drawCircle(id, value, max, color) {
@@ -438,12 +446,13 @@ function render(r, originalText) {
             </div>
             <div class="circle-sub">Setningslengde</div>
           </div>
-          <div class="circle-item">
+      <div class="circle-item">
             <div class="circle-label">Pensjonsfaglig</div>
             <div class="circle-wrap" id="cPensjon">
-              <div class="circle-val" style="color:${bcol(pensjonsscore)}">${pensjonsscore}</div>
+              <div class="circle-val" style="color:${pensjonscoreLabel(pensjonsscore).color}">${pensjonsscore}</div>
             </div>
-            <div class="circle-sub">Fagbegreptetthet</div>
+            <div class="lix-label" style="color:${pensjonscoreLabel(pensjonsscore).color}">${pensjonscoreLabel(pensjonsscore).label}</div>
+            <div class="circle-sub">100 = ingen jargong</div>
           </div>
         </div>
       </div>
@@ -497,7 +506,7 @@ function render(r, originalText) {
   drawCircle('cOrdvekt', 100 - ordvekt, 100, bcol(100 - ordvekt));
   drawCircle('cOrdvar', ordvariasjon, 100, bcol(ordvariasjon));
   drawCircle('cSetning', 100 - setningsvekt, 100, bcol(100 - setningsvekt));
-  drawCircle('cPensjon', pensjonsscore, 100, bcol(pensjonsscore));
+  drawCircle('cPensjon', pensjonsscore, 100, pensjonscoreLabel(pensjonsscore).color);
 }
 
 function copyText() {
