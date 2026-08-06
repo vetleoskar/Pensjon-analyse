@@ -449,7 +449,10 @@ function render(r, originalText) {
             <div class="sum-sub">${antallOrd} ord</div>
           </div>
         </div>
-        <div class="st" style="margin-top:16px;">Lesbarhetsindekser</div>
+        <div class="st" style="margin-top:16px;display:flex;align-items:center;gap:6px;">
+          Lesbarhetsindekser
+          <span onclick="document.getElementById('lixModal').style.display='flex'" style="cursor:pointer;width:16px;height:16px;background:#002776;color:#fff;border-radius:50%;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">i</span>
+        </div>
         <div class="circles-grid">
           <div class="circle-item">
             <div class="circle-label">LIX</div>
