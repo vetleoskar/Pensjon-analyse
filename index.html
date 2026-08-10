@@ -154,6 +154,10 @@
     <div class="history-title">Tidligere analyser</div>
     <div id="historyList"><p class="history-empty">Ingen analyser ennå – analyser en tekst for å se historikken her.</p></div>
   </div>
+ <div style="margin-top:2rem;padding:1.25rem;background:#fff;border:1px solid #e5e5e5;border-radius:12px;text-align:center;">
+    <p style="font-size:14px;color:#555;margin-bottom:12px;">Gi gjerne en tilbakemelding om du har forslag til forbedringer</p>
+    <button onclick="document.getElementById('feedbackModal').style.display='flex'" style="background:#002776;color:#fff;border-color:#002776;padding:10px 24px;">Gi tilbakemelding</button>
+  </div>
 </div>
 
 <div id="modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:1rem;" onclick="if(event.target===this)this.style.display='none'">
@@ -714,6 +718,17 @@ renderHistory();
     <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:6px;"><strong>Ordvariasjon</strong> måler hvor variert ordforrådet er. Høy variasjon kan gjøre teksten rikere, men lavere variasjon er lettere å lese for nybegynnere.</p>
     <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:6px;"><strong>Setningsvekt</strong> måler gjennomsnittlig setningslengde. Lange setninger er vanskeligere å lese.</p>
     <p style="font-size:13px;color:#444;line-height:1.6;"><strong>Pensjonsfaglig score</strong> er et egenutviklet mål på hvor mye pensjonsjargong teksten inneholder. 100 = ingen fagbegreper, lav score = mye jargong som folk flest ikke forstår.</p>
+  </div>
+</div>
+ <div id="feedbackModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:1rem;" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:#fff;border-radius:12px;padding:2rem;max-width:500px;width:100%;position:relative;">
+    <button onclick="document.getElementById('feedbackModal').style.display='none'" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:20px;cursor:pointer;color:#888;">✕</button>
+    <div style="background:#002776;margin:-2rem -2rem 1.5rem -2rem;padding:1.25rem 2rem;border-radius:12px 12px 0 0;">
+      <h2 style="color:#fff;font-size:18px;font-weight:700;">Gi tilbakemelding</h2>
+    </div>
+    <p style="font-size:13px;color:#555;margin-bottom:12px;">Har du forslag til forbedringer eller noe som ikke fungerer som det skal? Skriv det her.</p>
+    <textarea id="feedbackText" style="width:100%;min-height:120px;font-size:14px;padding:10px;border-radius:8px;border:1px solid #ddd;font-family:inherit;resize:vertical;" placeholder="Skriv tilbakemeldingen din her..."></textarea>
+    <button onclick="sendFeedback()" style="margin-top:12px;width:100%;background:#002776;color:#fff;border-color:#002776;padding:10px;font-size:14px;font-weight:500;cursor:pointer;border-radius:8px;">Send tilbakemelding</button>
   </div>
 </div>
 </body>
