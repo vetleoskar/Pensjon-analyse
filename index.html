@@ -704,7 +704,7 @@ function downloadPDF() {
 function sendFeedback() {
   const tekst = document.getElementById('feedbackText').value.trim();
   if (!tekst) { alert('Skriv inn en tilbakemelding først!'); return; }
-  const mailto = `mailto:DIN_JOBBMAIL@sparebank1.no?subject=${encodeURIComponent('Tilbakemelding – Pensjonstekst Analyse')}&body=${encodeURIComponent(tekst)}`;
+  const mailto = `vetle.stenstrom@sparebank1.no?subject=${encodeURIComponent('Tilbakemelding – Pensjonstekst Analyse')}&body=${encodeURIComponent(tekst)}`;
   const a = document.createElement('a');
   a.href = mailto;
   a.click();
