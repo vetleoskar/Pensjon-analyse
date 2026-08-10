@@ -698,6 +698,21 @@ function downloadPDF() {
   doc.save('pensjon-analyse.pdf');
 }
 
+ doc.save('pensjon-analyse.pdf');
+}
+
+ function sendFeedback() {
+  const tekst = document.getElementById('feedbackText').value.trim();
+  if (!tekst) return;
+  const mailto = `mailto:DIN_JOBBMAIL@sparebank1.no?subject=${encodeURIComponent('Tilbakemelding – Pensjonstekst Analyse')}&body=${encodeURIComponent(tekst)}`;
+  window.location.href = mailto;
+  document.getElementById('feedbackModal').style.display = 'none';
+  document.getElementById('feedbackText').value = '';
+}
+
+renderHistory();
+</script>
+
 renderHistory();
 </script>
  <div id="lixModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:1rem;" onclick="if(event.target===this)this.style.display='none'">
