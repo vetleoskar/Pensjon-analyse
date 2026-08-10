@@ -742,7 +742,15 @@ renderHistory();
     </div>
     <p style="font-size:13px;color:#555;margin-bottom:12px;">Har du forslag til forbedringer eller noe som ikke fungerer som det skal? Skriv det her.</p>
     <textarea id="feedbackText" style="width:100%;min-height:120px;font-size:14px;padding:10px;border-radius:8px;border:1px solid #ddd;font-family:inherit;resize:vertical;" placeholder="Skriv tilbakemeldingen din her..."></textarea>
-    <button onclick="sendFeedback()" style="margin-top:12px;width:100%;background:#002776;color:#fff;border-color:#002776;padding:10px;font-size:14px;font-weight:500;cursor:pointer;border-radius:8px;">Send tilbakemelding</button>
+    <button onclick="
+      const tekst = document.getElementById('feedbackText').value.trim();
+      if (!tekst) { alert('Skriv inn en tilbakemelding først!'); return; }
+      const a = document.createElement('a');
+      a.href = 'mailto:vetle.stenstrom@sparebank1.no?subject=' + encodeURIComponent('Tilbakemelding – Pensjonstekst Analyse') + '&body=' + encodeURIComponent(tekst);
+      a.click();
+      document.getElementById('feedbackModal').style.display='none';
+      document.getElementById('feedbackText').value='';
+    " style="margin-top:12px;width:100%;background:#002776;color:#fff;border-color:#002776;padding:10px;font-size:14px;font-weight:500;cursor:pointer;border-radius:8px;">Send tilbakemelding</button>
   </div>
 </div>
 </body>
