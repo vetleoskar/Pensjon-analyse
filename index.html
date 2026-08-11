@@ -385,7 +385,10 @@ async function analyse() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       const kanaltype = document.getElementById('kanaltype').value;
-      const kontekst = document.getElementById('kontekst').value.trim();
+    const kontekst = document.getElementById('kontekst').value.trim();
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text, kanaltype, kontekst })
     });
     if (!res.ok) throw new Error('API-feil: ' + res.status);
