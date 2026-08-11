@@ -126,6 +126,27 @@
 
 <div class="container">
   <textarea id="inp" placeholder="Lim inn pensjonsfaglig tekst her..."></textarea>
+  
+  <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px;">
+    <div>
+      <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:5px;">Kanaltype <span style="font-weight:400;color:#aaa;">(valgfritt)</span></label>
+      <select id="kanaltype" style="width:100%;font-size:14px;padding:9px 12px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#1a1a1a;font-family:inherit;">
+        <option value="">Ikke spesifisert</option>
+        <option value="Produktside">Produktside</option>
+        <option value="E-post til kunder">E-post til kunder</option>
+        <option value="Kjøpsflyt">Kjøpsflyt</option>
+        <option value="Push-varsel eller SMS">Push-varsel / SMS</option>
+        <option value="Informasjonsside">Informasjonsside</option>
+        <option value="App-varsling">App-varsling</option>
+        <option value="Annet">Annet</option>
+      </select>
+    </div>
+    <div>
+      <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:5px;">Tilleggskontekst <span style="font-weight:400;color:#aaa;">(valgfritt)</span></label>
+      <input id="kontekst" type="text" placeholder="F.eks. 'knapp under som sier Les mer', 'illustrasjon ved siden av'..." style="width:100%;font-size:14px;padding:9px 12px;border-radius:8px;border:1px solid #ddd;background:#fff;font-family:inherit;">
+    </div>
+  </div>
+
   <div class="btns">
     <button class="primary" onclick="analyse()">Analyser tekst</button>
     <button onclick="document.getElementById('inp').value='';document.getElementById('out').innerHTML='';document.getElementById('downloadWrap').style.display='none'">Tøm</button>
