@@ -41,6 +41,7 @@ pensjonskapital->["oppspart pensjon"(9),"pensjonssaldo"(7)]
 avkastning->["vekst i pensjonssparingen"(9),"gevinst på pensjonspengene"(8)]
 allokering->["fordeling av pensjonspengene"(9),"investeringsfordeling"(7)]
 Begrens deg til maks 6 vanskelige begreper og maks 5 ordbytte-forslag, selv om teksten inneholder flere. Velg de mest kritiske. Hold "forbedretTekst" konsis.
+Hvis KANALTYPE eller TILLEGGSKONTEKST er oppgitt, skal du KUN nevne dette i "oppsummering"-feltet som en nyansering av analysen. Konteksten skal aldri påvirke tallscorer, forståelsesgrad, karakter, LIX eller andre målbare verdier - disse skal alltid baseres utelukkende på selve teksten.
 SVAR MED DETTE JSON-FORMATET:
 {
   "forstaelsegrad": <0-100>,
@@ -87,7 +88,7 @@ SVAR MED DETTE JSON-FORMATET:
   "forbedretTekst": "<omskrevet versjon>",
   "oppsummering": "<2-3 setninger>"
 }`,
-        messages: [{ role: 'user', content: text }]
+        messages: [{ role: 'user', content: `TEKST TIL ANALYSE:\n${text}${kanaltype ? `\n\nKANALTYPE: ${kanaltype}` : ''}${kontekst ? `\n\nTILLEGGSKONTEKST FRA BRUKER: ${kontekst}` : ''}` }]
       })
     });
 
