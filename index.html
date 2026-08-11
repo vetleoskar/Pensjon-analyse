@@ -381,10 +381,7 @@ async function analyse() {
   out.innerHTML = '<div class="loading"><div class="spinner"></div>Analyserer teksten...</div>';
   document.getElementById('downloadWrap').style.display = 'none';
   try {
-    const res = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      const kanaltype = document.getElementById('kanaltype').value;
+    const kanaltype = document.getElementById('kanaltype').value;
     const kontekst = document.getElementById('kontekst').value.trim();
     const res = await fetch('/api/analyze', {
       method: 'POST',
