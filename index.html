@@ -8,11 +8,17 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f4f9; color: #1a1a1a; min-height: 100vh; }
-  .banner { background: #002776; padding: 2rem 1rem; margin-bottom: 2rem; overflow: hidden; }
+  .banner { background: #002776; padding: 2rem 1rem 0; overflow: hidden; }
   .banner-inner { max-width: 780px; margin: 0 auto; padding: 0 1rem; }
   .banner h1 { color: #fff; font-size: 26px; font-weight: 700; margin-bottom: 6px; }
-  .banner p { color: #a8c4e8; font-size: 15px; }
-  .container { max-width: 780px; margin: 0 auto; padding: 0 1rem 3rem; }
+  .banner p { color: #a8c4e8; font-size: 15px; margin-bottom: 1.25rem; }
+  .tabs { display: flex; gap: 4px; }
+  .tab { padding: 10px 20px; font-size: 14px; font-weight: 500; cursor: pointer; border-radius: 8px 8px 0 0; border: none; background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); transition: all 0.15s; }
+  .tab:hover { background: rgba(255,255,255,0.25); color: #fff; }
+  .tab.active { background: #f0f4f9; color: #002776; font-weight: 600; }
+  .container { max-width: 780px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
   textarea { width: 100%; min-height: 130px; font-size: 14px; padding: 12px; border-radius: 8px; border: 1px solid #ddd; resize: vertical; font-family: inherit; line-height: 1.6; background: #fff; }
   textarea:focus { outline: none; border-color: #002776; }
   .btns { display: flex; gap: 8px; margin-top: 10px; }
@@ -106,12 +112,30 @@
   .history-delete { font-size: 12px; color: #aaa; cursor: pointer; padding: 2px 6px; border-radius: 4px; border: 1px solid #eee; background: #fff; }
   .history-delete:hover { color: #991b1b; border-color: #991b1b; }
   .lix-label { font-size: 12px; font-weight: 600; text-align: center; margin-top: 2px; }
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px; }
+  .compare-label { font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; }
+  .compare-result { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 1.25rem; margin-top: 1.5rem; }
+  .compare-header { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1rem; }
+  .compare-card { background: #f9f9f7; border-radius: 8px; padding: 1rem; text-align: center; }
+  .compare-card h3 { font-size: 13px; font-weight: 600; color: #555; margin-bottom: 8px; }
+  .compare-grade { font-size: 36px; font-weight: 700; }
+  .compare-pct { font-size: 14px; color: #888; margin-top: 4px; }
+  .compare-lix { font-size: 13px; color: #888; margin-top: 2px; }
+  .delta { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: #f9f9f7; border-radius: 8px; margin-bottom: 1rem; flex-wrap: wrap; }
+  .delta-item { text-align: center; padding: 8px 16px; }
+  .delta-label { font-size: 11px; color: #888; margin-bottom: 4px; }
+  .delta-val { font-size: 20px; font-weight: 700; }
+  .delta-up { color: #166534; }
+  .delta-down { color: #991b1b; }
+  .delta-neutral { color: #888; }
   @media (max-width: 600px) {
     .circles-grid { grid-template-columns: repeat(3, 1fr); }
     .top-summary { grid-template-columns: 1fr 1fr; }
     .two-col { grid-template-columns: 1fr; }
     .seg-lbl { width: 120px; }
     .sources-grid { grid-template-columns: 1fr; }
+    .compare-grid { grid-template-columns: 1fr; }
+    .compare-header { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -120,46 +144,72 @@
 <div class="banner">
   <div class="banner-inner">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-  <h1>Pensjonstekst Analyse</h1>
-  <img src="/Logo.png" alt="Logo" style="height:90px;object-fit:contain;position:absolute;right:38%;top:1.5%;">
-</div>
+      <h1>Pensjonstekst Analyse</h1>
+      <img src="/Logo.png" alt="Logo" style="height:90px;object-fit:contain;position:absolute;right:38%;top:2.5%;">
+    </div>
     <p>Finn ut hvor godt kundene vil forstå teksten</p>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('analyse', this)">Analyser tekst</button>
+      <button class="tab" onclick="switchTab('sammenlign', this)">Sammenlign tekster</button>
+    </div>
   </div>
 </div>
 
 <div class="container">
-  <textarea id="inp" placeholder="Lim inn pensjonsfaglig tekst her..."></textarea>
-  
-  <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px;">
-    <div>
-      <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:5px;">Hvilken kanaltype blir teksten brukt i? <span style="font-weight:400;color:#aaa;">(valgfritt)</span></label>
-      <select id="kanaltype" style="width:100%;font-size:14px;padding:9px 12px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#1a1a1a;font-family:inherit;">
-        <option value="">Ikke spesifisert</option>
-        <option value="Produktside">Produktside</option>
-        <option value="E-post til kunder">E-post til kunder</option>
-        <option value="Kjøpsflyt">Kjøpsflyt</option>
-        <option value="Push-varsel eller SMS">Push-varsel / SMS</option>
-        <option value="Informasjonsside">Informasjonsside</option>
-        <option value="App-varsling">App-varsling</option>
-        <option value="Annet">Annet</option>
-      </select>
+
+  <!-- FANE 1: ANALYSER -->
+  <div id="tab-analyse" class="tab-content active">
+    <textarea id="inp" placeholder="Lim inn pensjonsfaglig tekst her..."></textarea>
+    <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px;">
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:5px;">Hvilken kanaltype blir teksten brukt i? <span style="font-weight:400;color:#aaa;">(valgfritt)</span></label>
+        <select id="kanaltype" style="width:100%;font-size:14px;padding:9px 12px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#1a1a1a;font-family:inherit;">
+          <option value="">Ikke spesifisert</option>
+          <option value="Produktside">Produktside</option>
+          <option value="E-post til kunder">E-post til kunder</option>
+          <option value="Kjøpsflyt">Kjøpsflyt</option>
+          <option value="Push-varsel eller SMS">Push-varsel / SMS</option>
+          <option value="Informasjonsside">Informasjonsside</option>
+          <option value="App-varsling">App-varsling</option>
+          <option value="Annet">Annet</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:5px;">Tilleggskontekst <span style="font-weight:400;color:#aaa;">(valgfritt)</span></label>
+        <input id="kontekst" type="text" placeholder="F.eks. 'Teksten støttes med en illustrasjon', 'Les mer knapp ligger under'..." style="width:100%;font-size:14px;padding:9px 12px;border-radius:8px;border:1px solid #ddd;background:#fff;font-family:inherit;">
+      </div>
     </div>
-    <div>
-      <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:5px;">Tilleggskontekst <span style="font-weight:400;color:#aaa;">(valgfritt)</span></label>
-      <input id="kontekst" type="text" placeholder="F.eks. 'Teksten støttes med en illustrasjon', 'Les mer knapp ligger under'..." style="width:100%;font-size:14px;padding:9px 12px;border-radius:8px;border:1px solid #ddd;background:#fff;font-family:inherit;">
+    <div class="btns">
+      <button class="primary" onclick="analyse()">Analyser tekst</button>
+      <button onclick="document.getElementById('inp').value='';document.getElementById('out').innerHTML='';document.getElementById('downloadWrap').style.display='none';document.getElementById('kanaltype').value='';document.getElementById('kontekst').value='';">Tøm</button>
+    </div>
+    <div id="out"></div>
+    <div id="downloadWrap" style="display:none;">
+      <button class="download-btn" onclick="downloadPDF()">Last ned analyse som PDF</button>
     </div>
   </div>
 
-  <div class="btns">
-    <button class="primary" onclick="analyse()">Analyser tekst</button>
-    <button onclick="document.getElementById('inp').value='';document.getElementById('out').innerHTML='';document.getElementById('downloadWrap').style.display='none';document.getElementById('kanaltype').value='';document.getElementById('kontekst').value='';">Tøm</button>
+  <!-- FANE 2: SAMMENLIGN -->
+  <div id="tab-sammenlign" class="tab-content">
+    <p style="font-size:14px;color:#555;margin-bottom:1rem;">Lim inn original og revidert tekst for å se om forbedringene har hatt effekt.</p>
+    <div class="compare-grid">
+      <div>
+        <div class="compare-label">📄 Original tekst</div>
+        <textarea id="inp-original" placeholder="Lim inn original tekst her..." style="min-height:160px;"></textarea>
+      </div>
+      <div>
+        <div class="compare-label">✏️ Revidert tekst</div>
+        <textarea id="inp-revidert" placeholder="Lim inn revidert tekst her..." style="min-height:160px;"></textarea>
+      </div>
+    </div>
+    <div class="btns">
+      <button class="primary" onclick="sammenlign()">Sammenlign tekster</button>
+      <button onclick="document.getElementById('inp-original').value='';document.getElementById('inp-revidert').value='';document.getElementById('compare-out').innerHTML='';">Tøm</button>
+    </div>
+    <div id="compare-out"></div>
   </div>
 
-  <div id="out"></div>
-  <div id="downloadWrap" style="display:none;">
-    <button class="download-btn" onclick="downloadPDF()">Last ned analyse som PDF</button>
-  </div>
-
+  <!-- FELLES -->
   <div class="sources-box">
     <div class="st">Forskningsgrunnlag</div>
     <div class="sources-grid">
@@ -178,44 +228,63 @@
     <div class="history-title">Tidligere analyser</div>
     <div id="historyList"><p class="history-empty">Ingen analyser ennå – analyser en tekst for å se historikken her.</p></div>
   </div>
- <div style="margin-top:2rem;padding:1.25rem;background:#fff;border:1px solid #e5e5e5;border-radius:12px;text-align:center;">
+
+  <div style="margin-top:2rem;padding:1.25rem;background:#fff;border:1px solid #e5e5e5;border-radius:12px;text-align:center;">
     <p style="font-size:14px;color:#555;margin-bottom:12px;">Gi gjerne en tilbakemelding om du har forslag til forbedringer</p>
     <button onclick="document.getElementById('feedbackModal').style.display='flex'" style="background:#002776;color:#fff;border-color:#002776;padding:10px 24px;">Gi tilbakemelding</button>
   </div>
 </div>
 
-<div id="modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:1rem;" onclick="if(event.target===this)this.style.display='none'">
-  <div style="background:#fff;border-radius:12px;padding:2rem;max-width:560px;width:100%;max-height:85vh;overflow-y:auto;position:relative;">
-    <button onclick="document.getElementById('modal').style.display='none'" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:20px;cursor:pointer;color:#888;">✕</button>
+<div id="lixModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:1rem;" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:#fff;border-radius:12px;padding:2rem;max-width:500px;width:100%;max-height:85vh;overflow-y:auto;position:relative;">
+    <button onclick="document.getElementById('lixModal').style.display='none'" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:20px;cursor:pointer;color:#888;">✕</button>
     <div style="background:#002776;margin:-2rem -2rem 1.5rem -2rem;padding:1.25rem 2rem;border-radius:12px 12px 0 0;">
-      <h2 style="color:#fff;font-size:18px;font-weight:700;">Hvordan fungerer analysen?</h2>
+      <h2 style="color:#fff;font-size:18px;font-weight:700;">Lesbarhetsindekser forklart</h2>
     </div>
-    <h3 style="font-size:14px;font-weight:600;color:#002776;margin-bottom:6px;">Hva analyserer verktøyet?</h3>
-    <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:1rem;">Verktøyet analyserer pensjonsfaglige tekster og vurderer hvor godt ulike grupper av den norske befolkningen vil forstå dem. Analysen kombinerer kunstig intelligens med norsk pensjonsforskning.</p>
-    <h3 style="font-size:14px;font-weight:600;color:#002776;margin-bottom:6px;">Lesbarhetsindekser</h3>
-    <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:6px;"><strong>LIX</strong> er en anerkjent nordisk lesbarhetsindeks basert på setningslengde og andel lange ord.</p>
-    <table style="font-size:12px;color:#444;width:100%;border-collapse:collapse;margin-bottom:1rem;">
-      <tr style="background:#f9f9f7;"><td style="padding:5px 8px;border-radius:4px 0 0 4px;font-weight:600;color:#002776;">Under 30</td><td style="padding:5px 8px;">Veldig lettlest, som barnebøker</td></tr>
+    <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:1rem;"><strong>LIX</strong> er en anerkjent nordisk lesbarhetsindeks basert på setningslengde og andel lange ord.</p>
+    <table style="font-size:12px;color:#444;width:100%;border-collapse:collapse;margin-bottom:1.25rem;">
+      <tr style="background:#f9f9f7;"><td style="padding:5px 8px;font-weight:600;color:#002776;">Under 30</td><td style="padding:5px 8px;">Veldig lettlest, som barnebøker</td></tr>
       <tr><td style="padding:5px 8px;font-weight:600;color:#002776;">30 til 40</td><td style="padding:5px 8px;">Lettlest, som ukeblader og lett underholdning</td></tr>
       <tr style="background:#f9f9f7;"><td style="padding:5px 8px;font-weight:600;color:#002776;">40 til 50</td><td style="padding:5px 8px;">Middels vanskelig, som avisartikler</td></tr>
       <tr><td style="padding:5px 8px;font-weight:600;color:#002776;">50 til 60</td><td style="padding:5px 8px;">Vanskelig, som mye sakprosa og offisielle tekster</td></tr>
-      <tr style="background:#f9f9f7;"><td style="padding:5px 8px;border-radius:4px 0 0 4px;font-weight:600;color:#002776;">Over 60</td><td style="padding:5px 8px;">Veldig tungt å lese, som avanserte fagtekster eller juss</td></tr>
+      <tr style="background:#f9f9f7;"><td style="padding:5px 8px;font-weight:600;color:#002776;">Over 60</td><td style="padding:5px 8px;">Veldig tungt å lese, som avanserte fagtekster eller juss</td></tr>
     </table>
-    <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:6px;"><strong>Ordvekt</strong> måler hvor lange ordene i teksten er i gjennomsnitt. Høy verdi betyr mange lange ord.</p>
+    <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:6px;"><strong>Ordvekt</strong> måler hvor lange ordene er i gjennomsnitt. Høy verdi betyr mange lange ord.</p>
     <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:6px;"><strong>Ordvariasjon</strong> måler hvor variert ordforrådet er. Høy variasjon kan gjøre teksten rikere, men lavere variasjon er lettere å lese for nybegynnere.</p>
     <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:6px;"><strong>Setningsvekt</strong> måler gjennomsnittlig setningslengde. Lange setninger er vanskeligere å lese.</p>
-    <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:1rem;"><strong>Pensjonsfaglig score</strong> er et egenutviklet mål på hvor mye pensjonssjargong teksten inneholder. 100 = ingen fagbegreper, lav score = mye sjargong som folk flest ikke forstår.</p>
-    <h3 style="font-size:14px;font-weight:600;color:#002776;margin-bottom:6px;">Forskningsgrunnlag</h3>
-    <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:1rem;">Analysen er basert på bl.a. Fafo (2022), ISF/Grødem (2019), Norstat/Norsk Pensjon (2025), SPK (2025) og Finans Norge/Norstat (2016). Forskningen dokumenterer hva nordmenn faktisk forstår av pensjonsspråk og hvilke begreper som er spesielt vanskelige.</p>
-    <h3 style="font-size:14px;font-weight:600;color:#002776;margin-bottom:6px;">Forståelsesgrad og karakter</h3>
-    <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:1rem;">Forståelsesgraden estimerer hvor stor andel av den norske voksne befolkningen som vil forstå teksten fullt ut. Karakteren (A–F) er basert på denne scoren: A = 80%+, B = 65–79%, C = 50–64%, D = 35–49%, E = 20–34%, F = under 20%.</p>
-    <h3 style="font-size:14px;font-weight:600;color:#002776;margin-bottom:6px;">Begrensninger</h3>
-    <p style="font-size:13px;color:#444;line-height:1.6;">Analysen er et hjelpeverktøy og ikke en fasit. LIX og andre indekser gir en indikasjon på lesbarhet, men tar ikke hensyn til alle faktorer som påvirker forståelse. Bruk resultatene som utgangspunkt for diskusjon og forbedring.</p>
+    <p style="font-size:13px;color:#444;line-height:1.6;"><strong>Pensjonsfaglig score</strong> er et egenutviklet mål på hvor mye pensjonsjargong teksten inneholder. 100 = ingen fagbegreper, lav score = mye jargong som folk flest ikke forstår.</p>
+  </div>
+</div>
+
+<div id="feedbackModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:1rem;" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:#fff;border-radius:12px;padding:2rem;max-width:500px;width:100%;position:relative;">
+    <button onclick="document.getElementById('feedbackModal').style.display='none'" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:20px;cursor:pointer;color:#888;">✕</button>
+    <div style="background:#002776;margin:-2rem -2rem 1.5rem -2rem;padding:1.25rem 2rem;border-radius:12px 12px 0 0;">
+      <h2 style="color:#fff;font-size:18px;font-weight:700;">Gi tilbakemelding</h2>
+    </div>
+    <p style="font-size:13px;color:#555;margin-bottom:12px;">Har du forslag til forbedringer eller noe som ikke fungerer som det skal? Skriv det her.</p>
+    <textarea id="feedbackText" style="width:100%;min-height:120px;font-size:14px;padding:10px;border-radius:8px;border:1px solid #ddd;font-family:inherit;resize:vertical;" placeholder="Skriv tilbakemeldingen din her..."></textarea>
+    <button onclick="
+      const tekst = document.getElementById('feedbackText').value.trim();
+      if (!tekst) { alert('Skriv inn en tilbakemelding først!'); return; }
+      const a = document.createElement('a');
+      a.href = 'mailto:vetle.stenstrom@sparebank1.no?subject=' + encodeURIComponent('Tilbakemelding – Pensjonstekst Analyse') + '&body=' + encodeURIComponent(tekst);
+      a.click();
+      document.getElementById('feedbackModal').style.display='none';
+      document.getElementById('feedbackText').value='';
+    " style="margin-top:12px;width:100%;background:#002776;color:#fff;border-color:#002776;padding:10px;font-size:14px;font-weight:500;cursor:pointer;border-radius:8px;">Send tilbakemelding</button>
   </div>
 </div>
 
 <script>
 let history = [];
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  el.classList.add('active');
+}
 
 function col(v) {
   if (v >= 65) return '#166534';
@@ -369,6 +438,7 @@ function loadHistory(i) {
   document.getElementById('inp').value = h.text;
   render(h.result, h.text);
   document.getElementById('downloadWrap').style.display = 'block';
+  switchTab('analyse', document.querySelector('.tab'));
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -377,22 +447,26 @@ function deleteHistory(i) {
   renderHistory();
 }
 
+async function callAPI(text, kanaltype, kontekst) {
+  const response = await fetch('/api/analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, kanaltype: kanaltype || '', kontekst: kontekst || '' })
+  });
+  if (!response.ok) throw new Error('API-feil: ' + response.status);
+  return await response.json();
+}
+
 async function analyse() {
   const text = document.getElementById('inp').value.trim();
   if (!text) return;
+  const kanaltype = document.getElementById('kanaltype').value;
+  const kontekst = document.getElementById('kontekst').value.trim();
   const out = document.getElementById('out');
   out.innerHTML = '<div class="loading"><div class="spinner"></div>Analyserer teksten...</div>';
   document.getElementById('downloadWrap').style.display = 'none';
   try {
-    const kanaltype = document.getElementById('kanaltype').value;
-    const kontekst = document.getElementById('kontekst').value.trim();
-    const res = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, kanaltype, kontekst })
-    });
-    if (!res.ok) throw new Error('API-feil: ' + res.status);
-    const r = await res.json();
+    const r = await callAPI(text, kanaltype, kontekst);
     render(r, text);
     const lix = beregnLIX(text);
     const antallOrd = text.trim().split(/\s+/).length;
@@ -402,6 +476,122 @@ async function analyse() {
   } catch(e) {
     out.innerHTML = '<p class="error">Noe gikk galt: ' + e.message + '</p>';
   }
+}
+
+async function sammenlign() {
+  const textA = document.getElementById('inp-original').value.trim();
+  const textB = document.getElementById('inp-revidert').value.trim();
+  if (!textA || !textB) { alert('Lim inn begge tekstene først!'); return; }
+  const out = document.getElementById('compare-out');
+  out.innerHTML = '<div class="loading"><div class="spinner"></div>Analyserer begge tekstene...</div>';
+  try {
+    const [rA, rB] = await Promise.all([callAPI(textA), callAPI(textB)]);
+    renderSammenlign(rA, rB, textA, textB);
+  } catch(e) {
+    out.innerHTML = '<p class="error">Noe gikk galt: ' + e.message + '</p>';
+  }
+}
+
+function renderSammenlign(rA, rB, textA, textB) {
+  const gradeA = getGrade(rA.forstaelsegrad);
+  const gradeB = getGrade(rB.forstaelsegrad);
+  const lixA = beregnLIX(textA);
+  const lixB = beregnLIX(textB);
+  const psA = beregnPensjonsscore(rA.vanskeligeBegreper, textA.split(/\s+/).length);
+  const psB = beregnPensjonsscore(rB.vanskeligeBegreper, textB.split(/\s+/).length);
+  const deltaFG = rB.forstaelsegrad - rA.forstaelsegrad;
+  const deltaLIX = lixB - lixA;
+  const deltaBegreper = (rB.vanskeligeBegreper||[]).length - (rA.vanskeligeBegreper||[]).length;
+  const deltaPS = psB - psA;
+
+  const arrow = (v, invertert = false) => {
+    const positiv = invertert ? v < 0 : v > 0;
+    if (v === 0) return { cls: 'delta-neutral', prefix: '±' };
+    return positiv ? { cls: 'delta-up', prefix: '+' } : { cls: 'delta-down', prefix: '' };
+  };
+
+  const fgArrow = arrow(deltaFG);
+  const lixArrow = arrow(deltaLIX, true);
+  const begrepArrow = arrow(deltaBegreper, true);
+  const psArrow = arrow(deltaPS);
+
+  const segs = [
+    ['Unge under 35', 'unge_under35'],
+    ['Middelaldrende 35–50', 'middelaldrende_35_50'],
+    ['Eldre over 50', 'eldre_over50'],
+    ['Lav utdanning', 'lav_utdanning'],
+    ['Høy utdanning', 'hoy_utdanning'],
+    ['Kvinner', 'kvinner'],
+    ['Menn', 'menn'],
+  ];
+
+  document.getElementById('compare-out').innerHTML = `
+    <div class="compare-result">
+      <div class="compare-header">
+        <div class="compare-card">
+          <h3>📄 Original</h3>
+          <div class="compare-grade" style="color:${gradeA.color}">${gradeA.grade}</div>
+          <div class="compare-pct" style="color:${col(rA.forstaelsegrad)}">${rA.forstaelsegrad}% forståelse</div>
+          <div class="compare-lix">LIX: ${lixA} · ${lixLabel(lixA).label}</div>
+          <div class="compare-lix">Pensjonsfaglig: ${psA}/100</div>
+          <div class="compare-lix">${(rA.vanskeligeBegreper||[]).length} vanskelige begreper</div>
+        </div>
+        <div class="compare-card">
+          <h3>✏️ Revidert</h3>
+          <div class="compare-grade" style="color:${gradeB.color}">${gradeB.grade}</div>
+          <div class="compare-pct" style="color:${col(rB.forstaelsegrad)}">${rB.forstaelsegrad}% forståelse</div>
+          <div class="compare-lix">LIX: ${lixB} · ${lixLabel(lixB).label}</div>
+          <div class="compare-lix">Pensjonsfaglig: ${psB}/100</div>
+          <div class="compare-lix">${(rB.vanskeligeBegreper||[]).length} vanskelige begreper</div>
+        </div>
+      </div>
+      <div class="hr"></div>
+      <div class="st">Endringer</div>
+      <div class="delta">
+        <div class="delta-item"><div class="delta-label">Forståelsesgrad</div><div class="delta-val ${fgArrow.cls}">${fgArrow.prefix}${deltaFG}%</div></div>
+        <div class="delta-item"><div class="delta-label">LIX</div><div class="delta-val ${lixArrow.cls}">${lixArrow.prefix}${deltaLIX}</div></div>
+        <div class="delta-item"><div class="delta-label">Vanskelige begreper</div><div class="delta-val ${begrepArrow.cls}">${begrepArrow.prefix}${deltaBegreper}</div></div>
+        <div class="delta-item"><div class="delta-label">Pensjonsfaglig</div><div class="delta-val ${psArrow.cls}">${psArrow.prefix}${deltaPS}</div></div>
+      </div>
+      <div class="hr"></div>
+      <div class="st">Forståelse per segment</div>
+      ${segs.map(([lbl, key]) => {
+        const vA = (rA.segmentForstaelse||{})[key] || 0;
+        const vB = (rB.segmentForstaelse||{})[key] || 0;
+        const d = vB - vA;
+        const ac = d > 0 ? 'delta-up' : d < 0 ? 'delta-down' : 'delta-neutral';
+        const ap = d > 0 ? '+' : '';
+        return `
+        <div class="seg-row" style="margin-bottom:10px;">
+          <span class="seg-lbl">${lbl}</span>
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+              <span style="font-size:10px;color:#888;width:52px;">Original</span>
+              <div class="bar-bg"><div class="bar-fill" style="width:${vA}%;background:${bcol(vA)}"></div></div>
+              <span class="seg-pct">${vA}%</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:10px;color:#888;width:52px;">Revidert</span>
+              <div class="bar-bg"><div class="bar-fill" style="width:${vB}%;background:${bcol(vB)}"></div></div>
+              <span class="seg-pct">${vB}%</span>
+            </div>
+          </div>
+          <span class="${ac}" style="font-size:13px;font-weight:600;min-width:36px;text-align:right;">${ap}${d}</span>
+        </div>`;
+      }).join('')}
+      <div class="hr"></div>
+      <div class="st">Vurdering av endringene</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="background:#f9f9f7;border-radius:8px;padding:12px;">
+          <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:6px;">📄 Original – svakheter</div>
+          <ul style="padding-left:16px;">${(rA.svakheter||[]).map(s=>`<li style="font-size:12px;color:#1a1a1a;line-height:1.5;margin-bottom:3px;">${s}</li>`).join('')}</ul>
+        </div>
+        <div style="background:#f9f9f7;border-radius:8px;padding:12px;">
+          <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:6px;">✏️ Revidert – svakheter</div>
+          <ul style="padding-left:16px;">${(rB.svakheter||[]).map(s=>`<li style="font-size:12px;color:#1a1a1a;line-height:1.5;margin-bottom:3px;">${s}</li>`).join('')}</ul>
+        </div>
+      </div>
+    </div>`;
 }
 
 function render(r, originalText) {
@@ -417,7 +607,6 @@ function render(r, originalText) {
   ];
   const { grade, color: gradeColor } = getGrade(r.forstaelsegrad);
   const highlightedHTML = highlightText(originalText, r.vanskeligeBegreper || []);
-
   const lix = beregnLIX(originalText);
   const lixInfo = lixLabel(lix);
   const ordvekt = beregnOrdvekt(originalText);
@@ -485,38 +674,28 @@ function render(r, originalText) {
         <div class="circles-grid">
           <div class="circle-item">
             <div class="circle-label">LIX</div>
-            <div class="circle-wrap" id="cLix">
-              <div class="circle-val" style="color:${lixInfo.color}">${lix}</div>
-            </div>
+            <div class="circle-wrap" id="cLix"><div class="circle-val" style="color:${lixInfo.color}">${lix}</div></div>
             <div class="lix-label" style="color:${lixInfo.color}">${lixInfo.label}</div>
             <div class="circle-sub">${lixInfo.sub}</div>
           </div>
           <div class="circle-item">
             <div class="circle-label">Ordvekt</div>
-            <div class="circle-wrap" id="cOrdvekt">
-              <div class="circle-val" style="color:${bcol(100-ordvekt)}">${ordvekt}</div>
-            </div>
+            <div class="circle-wrap" id="cOrdvekt"><div class="circle-val" style="color:${bcol(100-ordvekt)}">${ordvekt}</div></div>
             <div class="circle-sub">Lengde på ord</div>
           </div>
           <div class="circle-item">
             <div class="circle-label">Ordvariasjon</div>
-            <div class="circle-wrap" id="cOrdvar">
-              <div class="circle-val" style="color:${bcol(ordvariasjon)}">${ordvariasjon}</div>
-            </div>
+            <div class="circle-wrap" id="cOrdvar"><div class="circle-val" style="color:${bcol(ordvariasjon)}">${ordvariasjon}</div></div>
             <div class="circle-sub">Unike ord</div>
           </div>
           <div class="circle-item">
             <div class="circle-label">Setningsvekt</div>
-            <div class="circle-wrap" id="cSetning">
-              <div class="circle-val" style="color:${bcol(100-setningsvekt)}">${setningsvekt}</div>
-            </div>
+            <div class="circle-wrap" id="cSetning"><div class="circle-val" style="color:${bcol(100-setningsvekt)}">${setningsvekt}</div></div>
             <div class="circle-sub">Setningslengde</div>
           </div>
           <div class="circle-item">
             <div class="circle-label">Pensjonsfaglig</div>
-            <div class="circle-wrap" id="cPensjon">
-              <div class="circle-val" style="color:${pensjonscoreLabel(pensjonsscore).color}">${pensjonsscore}</div>
-            </div>
+            <div class="circle-wrap" id="cPensjon"><div class="circle-val" style="color:${pensjonscoreLabel(pensjonsscore).color}">${pensjonsscore}</div></div>
             <div class="lix-label" style="color:${pensjonscoreLabel(pensjonsscore).color}">${pensjonscoreLabel(pensjonsscore).label}</div>
             <div class="circle-sub">100 = ingen sjargong</div>
           </div>
@@ -669,7 +848,6 @@ function downloadPDF() {
 
   addTitle('Overordnet vurdering');
   addText(r.oppsummering);
-
   addTitle('Analysert tekst');
   addText(text.substring(0, 400) + (text.length > 400 ? '...' : ''));
 
@@ -678,11 +856,7 @@ function downloadPDF() {
     r.vanskeligeBegreper.forEach(b => {
       addText(b.begrep + ' [' + b.alvorlighet + ']', 11, true);
       addText(b.forklaring, 10);
-      if (b.forskningsdata) {
-        doc.setTextColor(136,136,136);
-        addText(b.forskningsdata, 9);
-        doc.setTextColor(26,26,26);
-      }
+      if (b.forskningsdata) { doc.setTextColor(136,136,136); addText(b.forskningsdata, 9); doc.setTextColor(26,26,26); }
       y += 1;
     });
   }
@@ -691,8 +865,7 @@ function downloadPDF() {
     addTitle('Ordbytte-forslag');
     r.ordbytte.forEach(o => {
       addText('Bytt ut: "' + o.original + '"', 11, true);
-      const best = [...o.forslag].sort((a,b) => b.score - a.score);
-      best.forEach((f, i) => {
+      [...o.forslag].sort((a,b) => b.score - a.score).forEach((f, i) => {
         addBullet(f.tekst + ' (' + f.score + '/10)' + (i === 0 ? ' *Anbefalt*' : '') + ' - ' + f.begrunnelse);
       });
       y += 2;
@@ -701,7 +874,6 @@ function downloadPDF() {
 
   addTitle('Styrker');
   (r.styrker || []).forEach(s => addBullet(s));
-
   addTitle('Svakheter');
   (r.svakheter || []).forEach(s => addBullet(s));
 
@@ -723,46 +895,8 @@ function downloadPDF() {
 
   doc.save('pensjon-analyse.pdf');
 }
+
 renderHistory();
 </script>
- <div id="lixModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:1rem;" onclick="if(event.target===this)this.style.display='none'">
-  <div style="background:#fff;border-radius:12px;padding:2rem;max-width:500px;width:100%;max-height:85vh;overflow-y:auto;position:relative;">
-    <button onclick="document.getElementById('lixModal').style.display='none'" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:20px;cursor:pointer;color:#888;">✕</button>
-    <div style="background:#002776;margin:-2rem -2rem 1.5rem -2rem;padding:1.25rem 2rem;border-radius:12px 12px 0 0;">
-      <h2 style="color:#fff;font-size:18px;font-weight:700;">Lesbarhetsindekser forklart</h2>
-    </div>
-    <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:1rem;"><strong>LIX</strong> er en anerkjent nordisk lesbarhetsindeks basert på setningslengde og andel lange ord.</p>
-    <table style="font-size:12px;color:#444;width:100%;border-collapse:collapse;margin-bottom:1.25rem;">
-      <tr style="background:#f9f9f7;"><td style="padding:5px 8px;font-weight:600;color:#002776;">Under 30</td><td style="padding:5px 8px;">Veldig lettlest, som barnebøker</td></tr>
-      <tr><td style="padding:5px 8px;font-weight:600;color:#002776;">30 til 40</td><td style="padding:5px 8px;">Lettlest, som ukeblader og lett underholdning</td></tr>
-      <tr style="background:#f9f9f7;"><td style="padding:5px 8px;font-weight:600;color:#002776;">40 til 50</td><td style="padding:5px 8px;">Middels vanskelig, som avisartikler</td></tr>
-      <tr><td style="padding:5px 8px;font-weight:600;color:#002776;">50 til 60</td><td style="padding:5px 8px;">Vanskelig, som mye sakprosa og offisielle tekster</td></tr>
-      <tr style="background:#f9f9f7;"><td style="padding:5px 8px;font-weight:600;color:#002776;">Over 60</td><td style="padding:5px 8px;">Veldig tungt å lese, som avanserte fagtekster eller juss</td></tr>
-    </table>
-    <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:6px;"><strong>Ordvekt</strong> måler hvor lange ordene er i gjennomsnitt. Høy verdi betyr mange lange ord.</p>
-    <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:6px;"><strong>Ordvariasjon</strong> måler hvor variert ordforrådet er. Høy variasjon kan gjøre teksten rikere, men lavere variasjon er lettere å lese for nybegynnere.</p>
-    <p style="font-size:13px;color:#444;line-height:1.6;margin-bottom:6px;"><strong>Setningsvekt</strong> måler gjennomsnittlig setningslengde. Lange setninger er vanskeligere å lese.</p>
-    <p style="font-size:13px;color:#444;line-height:1.6;"><strong>Pensjonsfaglig score</strong> er et egenutviklet mål på hvor mye pensjonsjargong teksten inneholder. 100 = ingen fagbegreper, lav score = mye jargong som folk flest ikke forstår.</p>
-  </div>
-</div>
- <div id="feedbackModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:1rem;" onclick="if(event.target===this)this.style.display='none'">
-  <div style="background:#fff;border-radius:12px;padding:2rem;max-width:500px;width:100%;position:relative;">
-    <button onclick="document.getElementById('feedbackModal').style.display='none'" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:20px;cursor:pointer;color:#888;">✕</button>
-    <div style="background:#002776;margin:-2rem -2rem 1.5rem -2rem;padding:1.25rem 2rem;border-radius:12px 12px 0 0;">
-      <h2 style="color:#fff;font-size:18px;font-weight:700;">Gi tilbakemelding</h2>
-    </div>
-    <p style="font-size:13px;color:#555;margin-bottom:12px;">Har du forslag til forbedringer eller noe som ikke fungerer som det skal? Skriv det her.</p>
-    <textarea id="feedbackText" style="width:100%;min-height:120px;font-size:14px;padding:10px;border-radius:8px;border:1px solid #ddd;font-family:inherit;resize:vertical;" placeholder="Skriv tilbakemeldingen din her..."></textarea>
-    <button onclick="
-      const tekst = document.getElementById('feedbackText').value.trim();
-      if (!tekst) { alert('Skriv inn en tilbakemelding først!'); return; }
-      const a = document.createElement('a');
-      a.href = 'mailto:vetle.stenstrom@sparebank1.no?subject=' + encodeURIComponent('Tilbakemelding – Pensjonstekst Analyse') + '&body=' + encodeURIComponent(tekst);
-      a.click();
-      document.getElementById('feedbackModal').style.display='none';
-      document.getElementById('feedbackText').value='';
-    " style="margin-top:12px;width:100%;background:#002776;color:#fff;border-color:#002776;padding:10px;font-size:14px;font-weight:500;cursor:pointer;border-radius:8px;">Send tilbakemelding</button>
-  </div>
-</div>
 </body>
 </html>
