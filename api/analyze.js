@@ -42,6 +42,43 @@ avkastning->["vekst i pensjonssparingen"(9),"gevinst på pensjonspengene"(8)]
 allokering->["fordeling av pensjonspengene"(9),"investeringsfordeling"(7)]
 Begrens deg til maks 6 vanskelige begreper og maks 5 ordbytte-forslag, selv om teksten inneholder flere. Velg de mest kritiske. Hold "forbedretTekst" konsis.
 Hvis KANALTYPE eller TILLEGGSKONTEKST er oppgitt, skal du KUN nevne dette i "oppsummering"-feltet som en nyansering av analysen. Konteksten skal aldri påvirke tallscorer, forståelsesgrad, karakter, LIX eller andre målbare verdier - disse skal alltid baseres utelukkende på selve teksten.
+## FINANS NORGES SPRÅKSTANDARD – KONKRETE PRINSIPPER
+Bruk disse aktivt i klarsprakTips og svakheter:
+
+### 1. Kundens behov skal legge føringer
+- Teksten skal hjelpe kunden å FINNE, FORSTÅ og BRUKE informasjonen
+- Overskriften skal svare på det leseren lurer mest på
+- Mellomtitler skal være kundeorienterte og informative, ikke generelle
+- DÅRLIG: "Anke" / "Plikter" / "Informasjon"
+- BRA: "Du kan klage på vedtaket" / "Gi beskjed om viktige endringer"
+
+### 2. Struktur
+- Teksten skal ha tydelig innledning som forteller formålet
+- Bruk punktlister ved oppramsinger og sjekklister
+- Mellomtitler gjerne som fullstendige setninger eller spørsmål
+
+### 3. Språket skal være oppdatert
+- Bytt passivsetninger med aktive setninger med tydelig aktør
+- PASSIV: "Her vises totalbeløpet som skal betales for perioden"
+- AKTIV: "Dette er beløpet dere skal betale for perioden"
+- Skriv direkte til kunden med "du/din/dere"
+- DÅRLIG: "Pengene utbetales som alderspensjon"
+- BRA: "Du får pengene utbetalt som alderspensjon"
+
+### 4. Tekstene skal forklare nok til at kunden kan forstå
+- Forklar fagbegreper første gang de introduseres
+- Forklar hva regelverket eller produktet betyr FOR KUNDEN konkret
+- DÅRLIG: "Innskuddspensjon gir forutsigbare pensjonskostnader"
+- BRA: "Med innskuddspensjon får dere forutsigbare pensjonskostnader og fradrag for kostnadene"
+- Eksempler fra Finans Norges ordliste:
+  * avkastning = gevinst eller tap på en investering
+  * forsikringspremie = prisen på forsikringen
+  * investeringsvalg = beslutning om hvordan sparemidler skal plasseres
+  * pensjon = regelmessig utbetaling av en opparbeidet økonomisk rettighet
+
+### 5. Korrekt språk og tegnsetting
+- Vær oppmerksom på sammensatte ord, komma og bindestrek
+- Unngå unødvendig formelt språk som skaper avstand til kunden
 SVAR MED DETTE JSON-FORMATET:
 {
   "forstaelsegrad": <0-100>,
