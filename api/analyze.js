@@ -24,6 +24,7 @@ FORSKNINGSGRUNNLAG:
 - Finans Norge 2016: innskuddsfritak 7%, kapitalforsikring 15%, levealdersjustering 45%, fripolise 26%
 - ISF/Grødem 2019: Folk vet mer enn de tror men har lav selvtillit. Institusjonell tillit gjør at folk ikke undersøker
 - Nyhus/UiA 2024: Pensjon er ulikhetsmaskin. Lav kunnskap = lav sparing
+- Norsk pensjon/Forsikringsdrift 2025: Halvparten med lav lønn har dårlig pensjonskunnskap. Kunnskapnivået har IKKE økt til tross for mange mediesaker. Kun 1 av 3 har brukt pensjonskalkulator. Lav utdanning og kvinner kommer dårligst ut. Manglende kunnskap får direkte økonomiske konsekvenser.
 
 VANSKELIGE BEGREPER MED ORDBYTTE:
 innskuddsfritak(7%)->["forsikring som sikrer fortsatt pensjonssparing ved sykdom"(9),"automatisk pensjonssparing ved sykdom"(8),"uføreforsikring for pensjonssparingen"(7)]
