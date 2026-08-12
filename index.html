@@ -8,8 +8,8 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f4f9; color: #1a1a1a; min-height: 100vh; }
-  .banner { background: #002776; padding: 2rem 1rem; margin-bottom: 2rem; }
-  .banner-inner { max-width: 780px; margin: 0 auto; }
+  .banner { background: #002776; padding: 2rem 1rem; margin-bottom: 2rem; overflow: hidden; }
+  .banner-inner { max-width: 780px; margin: 0 auto; overflow: hidden; }
   .banner h1 { color: #fff; font-size: 26px; font-weight: 700; margin-bottom: 6px; }
   .banner p { color: #a8c4e8; font-size: 15px; }
   .container { max-width: 780px; margin: 0 auto; padding: 0 1rem 3rem; }
@@ -119,10 +119,10 @@
 
 <div class="banner">
   <div class="banner-inner">
-    <div style="display:flex;align-items:center;gap:16px;margin-bottom:6px;">
-      <img src="/Logo.png" alt="Logo" style="height:40px;">
-      <h1>Pensjonstekst Analyse</h1>
-    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+  <h1>Pensjonstekst Analyse</h1>
+  <img src="/logo.png" alt="Logo" style="height:90px;object-fit:contain;position:absolute;right:38%;top:1;">
+</div>
     <p>Finn ut hvor godt kundene vil forstå teksten</p>
   </div>
 </div>
@@ -186,7 +186,7 @@
 
 <div id="modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;padding:1rem;" onclick="if(event.target===this)this.style.display='none'">
   <div style="background:#fff;border-radius:12px;padding:2rem;max-width:560px;width:100%;max-height:85vh;overflow-y:auto;position:relative;">
-    <button onclick="document.getElementById('modal').style.display='none'" style="position:absolute;top:12px;right:12px;background:#none;border:none;font-size:20px;cursor:pointer;color:#888;">✕</button>
+    <button onclick="document.getElementById('modal').style.display='none'" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:20px;cursor:pointer;color:#888;">✕</button>
     <div style="background:#002776;margin:-2rem -2rem 1.5rem -2rem;padding:1.25rem 2rem;border-radius:12px 12px 0 0;">
       <h2 style="color:#fff;font-size:18px;font-weight:700;">Hvordan fungerer analysen?</h2>
     </div>
