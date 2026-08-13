@@ -485,7 +485,9 @@ async function sammenlign() {
   const out = document.getElementById('compare-out');
   out.innerHTML = '<div class="loading"><div class="spinner"></div>Analyserer begge tekstene...</div>';
   try {
-    const [rA, rB] = await Promise.all([callAPI(textA), callAPI(textB)]);
+    const rA = await callAPI(textA);
+await new Promise(r => setTimeout(r, 1500));
+const rB = await callAPI(textB);
     renderSammenlign(rA, rB, textA, textB);
   } catch(e) {
     out.innerHTML = '<p class="error">Noe gikk galt: ' + e.message + '</p>';
