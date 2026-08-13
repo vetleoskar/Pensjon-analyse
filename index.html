@@ -284,6 +284,9 @@ function switchTab(tab, el) {
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
   el.classList.add('active');
+  if (tab === 'sammenlign' && window.lastText) {
+    document.getElementById('inp-original').value = window.lastText;
+  }
 }
 
 function col(v) {
@@ -483,11 +486,10 @@ async function sammenlign() {
   const textB = document.getElementById('inp-revidert').value.trim();
   if (!textA || !textB) { alert('Lim inn begge tekstene først!'); return; }
   const out = document.getElementById('compare-out');
-  out.innerHTML = '<div class="loading"><div class="spinner"></div>Analyserer begge tekstene...</div>';
+  out.innerHTML = '<div class="loading"><div class="spinner"></div>Analyserer revidert tekst...</div>';
   try {
-    const rA = await callAPI(textA);
-await new Promise(r => setTimeout(r, 1500));
-const rB = await callAPI(textB);
+    const rA = window.lastResult && window.lastText === textA ? window.lastResult : await callAPI(textA);
+    const rB = await callAPI(textB);
     renderSammenlign(rA, rB, textA, textB);
   } catch(e) {
     out.innerHTML = '<p class="error">Noe gikk galt: ' + e.message + '</p>';
