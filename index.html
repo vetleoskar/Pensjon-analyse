@@ -464,7 +464,7 @@ async function sammenlign() {
 }
   if (!response.ok) throw new Error('API-feil: ' + response.status);
   return await response.json();
-}
+
 
 async function analyse() {
   const text = document.getElementById('inp').value.trim();
