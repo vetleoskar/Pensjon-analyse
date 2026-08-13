@@ -25,6 +25,7 @@ FORSKNINGSGRUNNLAG:
 - ISF/Grødem 2019: Folk vet mer enn de tror men har lav selvtillit. Institusjonell tillit gjør at folk ikke undersøker
 - Nyhus/UiA 2024: Pensjon er ulikhetsmaskin. Lav kunnskap = lav sparing
 - Norsk pensjon/Forsikringsdrift 2025: Halvparten med lav lønn har dårlig pensjonskunnskap. Kunnskapnivået har IKKE økt til tross for mange mediesaker. Kun 1 av 3 har brukt pensjonskalkulator. Lav utdanning og kvinner kommer dårligst ut. Manglende kunnskap får direkte økonomiske konsekvenser.
+- Magma/Seldal & Nyhus UIS (2025): Fagfellevurdert studie av 954 norske fulltidsansatte. Lav finansiell kunnskap -> mindre tilbøyelig til å sjekke sparebehov, spare selv og investere i aksjer. 75% med høy kunnskap er aktive i aksjemarkedet vs 43% med lav kunnskap. Over 10% vet ikke at de har tjenestepensjon. 44,3% har ikke sjekket sparebehov. Unge, kvinner og offentlig sektor har lavest kunnskap. Manglende kunnskap kan gi betydelig økonomiske konsekvenser for individ og samfunn. 
 
 VANSKELIGE BEGREPER MED ORDBYTTE:
 innskuddsfritak(7%)->["forsikring som sikrer fortsatt pensjonssparing ved sykdom"(9),"automatisk pensjonssparing ved sykdom"(8),"uføreforsikring for pensjonssparingen"(7)]
