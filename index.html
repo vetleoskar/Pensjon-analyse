@@ -447,24 +447,15 @@ function deleteHistory(i) {
   renderHistory();
 }
 
-async function sammenlign() {
-  const textA = document.getElementById('inp-original').value.trim();
-  const textB = document.getElementById('inp-revidert').value.trim();
-  if (!textA || !textB) { alert('Lim inn begge tekstene først!'); return; }
-  const out = document.getElementById('compare-out');
-  out.innerHTML = '<div class="loading"><div class="spinner"></div>Analyserer begge tekstene...</div>';
-  try {
-    const rA = await callAPI(textA);
-    await new Promise(r => setTimeout(r, 2000));
-    const rB = await callAPI(textB);
-    renderSammenlign(rA, rB, textA, textB);
-  } catch(e) {
-    out.innerHTML = '<p class="error">Noe gikk galt: ' + e.message + '</p>';
-  }
-}
+async function callAPI(text, kanaltype, kontekst) {
+  const response = await fetch('/api/analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, kanaltype: kanaltype || '', kontekst: kontekst || '' })
+  });
   if (!response.ok) throw new Error('API-feil: ' + response.status);
   return await response.json();
-
+}
 
 async function analyse() {
   const text = document.getElementById('inp').value.trim();
