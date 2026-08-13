@@ -735,14 +735,7 @@ function render(r, originalText) {
         </div>
       </div>
       ${tips ? `<div class="hr"></div><div class="sec"><div class="st">Klarspråk-tips</div>${tips}</div>` : ''}
-      <div class="hr"></div>
-      <div class="sec">
-        <div class="st">Forslag til forbedret tekst</div>
-        <div class="improved-wrap">
-          <div class="improved" id="improvedText">${r.forbedretTekst}</div>
-          <button class="copy-btn" id="copyBtn" onclick="copyText()">Kopier</button>
-        </div>
-      </div>
+      
     </div>`;
 
   window.lastResult = r;

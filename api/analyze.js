@@ -124,7 +124,7 @@ SVAR MED DETTE JSON-FORMATET:
       "eksempel": "<I stedet for X, skriv Y>"
     }
   ],
-  "forbedretTekst": "<omskrevet versjon>",
+ 
   "oppsummering": "<2-3 setninger>"
 }`,
         messages: [{ role: 'user', content: `TEKST TIL ANALYSE:\n${text}${kanaltype ? `\n\nKANALTYPE: ${kanaltype}` : ''}${kontekst ? `\n\nTILLEGGSKONTEKST FRA BRUKER: ${kontekst}` : ''}` }]
